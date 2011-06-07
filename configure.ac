@@ -150,7 +150,7 @@ AC_ARG_ENABLE(
 
 AC_ARG_WITH(
 	[xsl-stylesheetsdir],
-	[AS_HELP_STRING([--with-xsl-stylesheetsdir=PATH],[docbook xsl-stylesheets for svn build @<:@detect@:>@])],
+	[AS_HELP_STRING([--with-xsl-stylesheetsdir=PATH],[docbook xsl-stylesheets for generating manpages @<:@detect@:>@])],
 	[xslstylesheetsdir="${withval}"],
 	[xslstylesheetsdir="detect"]
 )
