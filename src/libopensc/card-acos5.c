@@ -56,6 +56,15 @@ static int acos5_match_card(sc_card_t * card)
 
 static int acos5_init(sc_card_t * card)
 {
+	unsigned long	flags;
+
+	flags = SC_ALGORITHM_RSA_RAW | SC_ALGORITHM_ONBOARD_KEY_GEN;
+	flags |= SC_ALGORITHM_RSA_HASH_NONE | SC_ALGORITHM_RSA_HASH_SHA1;
+
+	_sc_card_add_rsa_alg(card, 512, flags, 0);
+	_sc_card_add_rsa_alg(card, 1024, flags, 0);
+
+	card->caps |= SC_CARD_CAP_USE_FCI_AC;
 	card->max_recv_size = 128;
 	card->max_send_size = 128;
 	return SC_SUCCESS;
@@ -160,6 +169,9 @@ static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)
 	case SC_CARDCTL_GET_SERIALNR:
 		return acos5_get_serialnr(card, (sc_serial_number_t *) ptr);
 
+	case SC_CARDCTL_LIFECYCLE_SET:
+		return (0);
+
 	default:
 		return SC_ERROR_NOT_SUPPORTED;
 	}
@@ -219,19 +231,167 @@ static int acos5_list_files(sc_card_t * card, u8 * buf, size_t buflen)
 	return (bufp - buf);
 }
 
+
+static int acos5_construct_fci(sc_card_t *card, const sc_file_t *file,
+	u8 *out, size_t *outlen)
+{
+	u8 *p = out;
+	u8 buf[64];
+
+	if (*outlen < 2)
+		return SC_ERROR_BUFFER_TOO_SMALL;
+	*p++ = 0x62;
+	p++;
+	
+	buf[0] = (file->size >> 8) & 0xFF;
+	buf[1] = file->size & 0xFF;
+	sc_asn1_put_tag(0x80, buf, 2, p, *outlen - (p - out), &p);
+
+	if (file->type_attr_len) {
+		if ((p - out) + file->type_attr_len > *outlen)
+			return (SC_ERROR_BUFFER_TOO_SMALL);
+		memcpy (p, file->type_attr, file->type_attr_len);
+		p += file->type_attr_len;
+	} else {
+		/* file->shareable ? */
+		buf[0] = 0;
+		switch (file->type) {
+		case SC_FILE_TYPE_INTERNAL_EF:
+			buf[0] |= 0x08;
+			/* fall in */
+		case SC_FILE_TYPE_WORKING_EF:
+			buf[0] |= file->ef_structure & 7;
+			break;
+		case SC_FILE_TYPE_DF:
+			buf[0] |= 0x38;
+			break;
+		default:
+			return SC_ERROR_NOT_SUPPORTED;
+		}
+		sc_asn1_put_tag(0x82, buf, 1, p, *outlen - (p - out), &p);
+	}
+	buf[0] = (file->id >> 8) & 0xFF;
+	buf[1] = file->id & 0xFF;
+	sc_asn1_put_tag(0x83, buf, 2, p, *outlen - (p - out), &p);
+
+	if (file->prop_attr_len) {
+		if ((p - out) + file->prop_attr_len > *outlen)
+			return (SC_ERROR_BUFFER_TOO_SMALL);
+		memcpy (p, file->prop_attr, file->prop_attr_len);
+		p += file->prop_attr_len;
+	}
+	if (file->sec_attr_len) {
+		if ((p - out) + file->sec_attr_len > *outlen)
+			return (SC_ERROR_BUFFER_TOO_SMALL);
+		memcpy (p, file->sec_attr, file->sec_attr_len);
+		p += file->sec_attr_len;
+	}
+
+	out[1] = p - out - 2;
+
+	*outlen = p - out;
+	return 0;
+}
+
+static int acos5_delete_file(sc_card_t *card, const sc_path_t *path)
+{
+	int r;
+	sc_apdu_t apdu;
+	sc_file_t	*file;
+
+	SC_FUNC_CALLED(card->ctx, SC_LOG_DEBUG_VERBOSE);
+	if (path->type != SC_PATH_TYPE_FILE_ID || (path->len != 0 && path->len != 2)) {
+		sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL, "File type has to be SC_PATH_TYPE_FILE_ID");
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INVALID_ARGUMENTS);
+	}
+
+	r = sc_select_file(card, path, &file);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't select file to delete");
+	sc_file_free(file);
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_1, 0xE4, 0x00, 0x00);
+	
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	return sc_check_sw(card, apdu.sw1, apdu.sw2);
+}
+
+static int (*iso7816_pin_cmd_orig)(sc_card_t *card,
+				    struct sc_pin_cmd_data *data,
+				    int *tries_left);
+
+static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
+			   int *tries_left)
+{
+	sc_apdu_t apdu;
+	struct sc_path path;
+	struct sc_pin_cmd_pin *pin;
+	int r;
+	
+	if (data->cmd == SC_PIN_CMD_VERIFY) {
+		sc_format_path("3F005015", &path);
+		if ((r = sc_select_file(card, &path, NULL)) < 0) {
+			return r;
+		}
+
+		pin = &data->pin1;
+		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
+			       0x20, 0x00, 0x81);
+		apdu.lc = pin->len;
+		apdu.datalen = pin->len;
+		apdu.data = pin->data;
+
+		data->apdu = &apdu;
+	}
+
+	return ((*iso7816_pin_cmd_orig)(card, data, tries_left));
+}
+
+
 static struct sc_card_driver *sc_get_driver(void)
 {
 	struct sc_card_driver *iso_drv = sc_get_iso7816_driver();
 
+	/* these default values have names like iso7816_create_file */
 	iso_ops = iso_drv->ops;
 	acos5_ops = *iso_ops;
 
+
 	acos5_ops.match_card = acos5_match_card;
 	acos5_ops.init = acos5_init;
+	// finish
+	// read_binary
+	// write_binary
+	// update_binary
+	// erase_binary
+	// read_record
+	// write_record
+	// append_record
+	// update_record
 	acos5_ops.select_file = acos5_select_file;
-	acos5_ops.card_ctl = acos5_card_ctl;
+	// get_response
+	// get_challenge
+	// verify
+	// logout
+	// restore_security_env
+	// set_security_env
+	// decipher
+	// compute_signature
+	// change_reference_data
+	// reset_retry_counter
+	// create_file
+	acos5_ops.delete_file = acos5_delete_file;
 	acos5_ops.list_files = acos5_list_files;
+	// check_sw
+	acos5_ops.card_ctl = acos5_card_ctl;
+	// process_fci
+	acos5_ops.construct_fci = acos5_construct_fci;
 
+	iso7816_pin_cmd_orig = acos5_ops.pin_cmd;
+	acos5_ops.pin_cmd = acos5_pin_cmd;
+	// get_data
+	// put_data
+	// delete_record
 	return &acos5_drv;
 }
 
