@@ -115,6 +115,7 @@ static int acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	u8 *p;
 	u8 type_attr[100];
 	int type_attr_len;
+	int refnum;
 
 	r = sc_profile_get_file (profile, "pinfile", &pinfile);
 	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot get pinfile from profile");
@@ -133,7 +134,7 @@ static int acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		*p++ = 0x01; /* dcb, unused in acos5 */
 		*p++ = 0x00; /* must be 0 */
 		*p++ = 18; /* mrl: max record len */
-		*p++ = 1; /* nor: number of records */
+		*p++ = 4; /* nor: number of records */
 
 		*p++ = 0x88; /* set sfi to 1 */
 		*p++ = 0x01;
@@ -158,13 +159,20 @@ static int acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		return (SC_ERROR_INTERNAL);
 	}
 
+	refnum = auth_info->attrs.pin.reference;
+	if (refnum < 1 || refnum > 4) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL, "pin reference num must be 1..4; got %d", refnum);
+		return (SC_ERROR_INTERNAL);
+	}
+
+	/* manual section 3.1.1 PIN Data Structure */
 	dlen = 0;
-	data[dlen++] = 0x81; /* always pin 1 */
+	data[dlen++] = 0x80 | refnum;
 	data[dlen++] = 0xff; /* don't use pin fail counter for now */
 	for (i = 0; i < pin_len; i++)
 		data[dlen++] = pin[i];
 
-	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, 0, 0);
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, refnum, 4);
 	apdu.lc = dlen;
 	apdu.datalen = dlen;
 	apdu.data = data;
