@@ -75,46 +75,24 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	int type_attr_len;
 	sc_file_t *pinfile;
 
-	p = sec_attr;
-	*p++ = 0x8d;
-	*p++ = 2;
-	*p++ = (ACOS_MAIN_SE_FILE >> 8) & 0xff;
-	*p++ = ACOS_MAIN_SE_FILE & 0xff;
-	/* later will put Security Attributes Compact here too */
-	sec_attr_len = p - sec_attr;
-
-	sc_file_set_sec_attr (df, sec_attr,  sec_attr_len);
-
-	r = sc_create_file (p15card->card, df);
-	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "can't create fresh 5015 dir");
-	
 	if (0) {
-		/* have to create the pinfile first so we can be sure sfi 1 will go to it */
-		sc_debug (ctx, SC_LOG_DEBUG_NORMAL, "creating pinfile");
+		/* create SE file */
+		p = sec_attr;
+		*p++ = 0x8d;
+		*p++ = 2;
+		*p++ = (ACOS_MAIN_SE_FILE >> 8) & 0xff;
+		*p++ = ACOS_MAIN_SE_FILE & 0xff;
+		/* later will put Security Attributes Compact here too */
+		sec_attr_len = p - sec_attr;
 		
-		r = sc_profile_get_file (profile, "pinfile", &pinfile);
-		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot get pinfile from profile");
-
-		p = type_attr;
-		*p++ = 0x82;
-		*p++ = 0x05;
-		*p++ = 0x0c; /* fdb */
-		*p++ = 0x01; /* dcb */
-		*p++ = 0x00;
-		*p++ = 18; /* mrl: max record len */
-		*p++ = 1; /* nor: number of records */
-
-		*p++ = 0x88; /* set sfi to 1 */
-		*p++ = 0x01;
-		*p++ = 0x01; 
-	
-		type_attr_len = p - type_attr;
-		sc_file_set_type_attr (pinfile, type_attr, type_attr_len);
-	
-		r = sc_create_file (p15card->card, pinfile);
-		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "pinfile creation failed");
+		sc_file_set_sec_attr (df, sec_attr,  sec_attr_len);
+		
+		r = sc_create_file (p15card->card, df);
+		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL,
+			     r, "can't create fresh 5015 dir");
 	}
 	
+
 	return (r);
 }
 
@@ -134,11 +112,41 @@ static int acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	u8 data[100];
 	int i;
 	sc_apdu_t apdu;
+	u8 *p;
+	u8 type_attr[100];
+	int type_attr_len;
 
 	r = sc_profile_get_file (profile, "pinfile", &pinfile);
 	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot get pinfile from profile");
 
 	r = sc_select_file (card, &pinfile->path, NULL);
+	if (r == SC_ERROR_FILE_NOT_FOUND) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL, "creating pinfile");
+		
+		r = sc_profile_get_file (profile, "pinfile", &pinfile);
+		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot get pinfile from profile");
+
+		p = type_attr;
+		*p++ = 0x82;
+		*p++ = 0x05;
+		*p++ = 0x0c; /* fdb linear variable ef */
+		*p++ = 0x01; /* dcb, unused in acos5 */
+		*p++ = 0x00; /* must be 0 */
+		*p++ = 18; /* mrl: max record len */
+		*p++ = 1; /* nor: number of records */
+
+		*p++ = 0x88; /* set sfi to 1 */
+		*p++ = 0x01;
+		*p++ = 0x01; 
+	
+		type_attr_len = p - type_attr;
+		sc_file_set_type_attr (pinfile, type_attr, type_attr_len);
+	
+		r = sc_create_file (p15card->card, pinfile);
+		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "pinfile creation failed");
+
+		r = sc_select_file (card, &pinfile->path, NULL);
+	}
 	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "select pinfile failed");
 
 	sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "pinfile->status:%X", pinfile->status);
