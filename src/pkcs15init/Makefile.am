@@ -30,7 +30,8 @@ dist_pkgdata_DATA = \
 	ias_adele_admin1.profile ias_adele_admin2.profile ias_adele_common.profile \
 	iasecc_generic_pki.profile iasecc_admin_eid.profile iasecc_generic_oberthur.profile \
 	openpgp.profile sc-hsm.profile \
-	isoApplet.profile gids.profile
+	isoApplet.profile gids.profile \
+	acos5.profile
 
 AM_CPPFLAGS = -DSC_PKCS15_PROFILE_DIRECTORY=\"$(pkgdatadir)\" \
 	-I$(top_srcdir)/src
@@ -48,4 +49,5 @@ libpkcs15init_la_SOURCES = \
 	pkcs15-oberthur.c pkcs15-oberthur-awp.c \
 	pkcs15-authentic.c pkcs15-iasecc.c pkcs15-openpgp.c \
 	pkcs15-sc-hsm.c \
-	pkcs15-isoApplet.c pkcs15-gids.c
+	pkcs15-isoApplet.c pkcs15-gids.c \
+	pkcs15-acos5.c
