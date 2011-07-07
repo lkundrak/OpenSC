@@ -75,6 +75,11 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	int type_attr_len;
 	sc_file_t *pinfile;
 
+	r = sc_create_file (p15card->card, df);
+	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
+		r = 0;
+	LOG_TEST_RET (ctx, r, "can't create appdir");
+
 	if (0) {
 		/* create SE file */
 		p = sec_attr;
@@ -89,10 +94,9 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 		
 		r = sc_create_file (p15card->card, df);
 		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL,
-			     r, "can't create fresh 5015 dir");
+			     r, "can't create fresh appdir");
 	}
 	
-
 	return (r);
 }
 
@@ -100,7 +104,7 @@ static int acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	sc_file_t *df, sc_pkcs15_object_t *pin_obj,
 	const u8 *pin, size_t pin_len, const u8 *puk, size_t puk_len)
 {
-	/* df is /3f00/5015 */
+	/* df is for the appdir */
 	/* ideas from pkcs15-setcos.c */
 
 	struct sc_context *ctx = p15card->card->ctx;
@@ -316,7 +320,9 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 
 
 	file = sc_file_new ();
-	sc_format_path("3F005015", &file->path);
+	file->path.len = p15card->app->path.len;
+	memcpy (file->path.value, p15card->app->path.value, 
+		p15card->app->path.len);
 	sc_append_file_id (&file->path, ACOS5_TMP_PUBKEY);
 	file->type = SC_FILE_TYPE_INTERNAL_EF;
 	file->ef_structure = SC_FILE_EF_TRANSPARENT;

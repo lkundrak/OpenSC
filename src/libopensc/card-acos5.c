@@ -328,23 +328,25 @@ static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
 	struct sc_pin_cmd_pin *pin;
 	int r;
 	
-	if (data->cmd == SC_PIN_CMD_VERIFY) {
-		sc_format_path("3F005015", &path);
-		if ((r = sc_select_file(card, &path, NULL)) < 0) {
-			return r;
-		}
-
+	switch (data->cmd) {
+	case SC_PIN_CMD_VERIFY:
 		pin = &data->pin1;
+		
 		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
-			       0x20, 0x00, 0x81);
+			       0x20, 0x00, data->pin_reference | 0x80);
 		apdu.lc = pin->len;
 		apdu.datalen = pin->len;
 		apdu.data = pin->data;
 
 		data->apdu = &apdu;
+		r = (*iso7816_pin_cmd_orig)(card, data, tries_left);
+		break;
+	default:
+		sc_debug (card->ctx, SC_LOG_DEBUG_NORMAL, "acos5_pin_cmd: can't handle cmd");
+		r = SC_ERROR_INTERNAL;
+		break;
 	}
-
-	return ((*iso7816_pin_cmd_orig)(card, data, tries_left));
+	return (r);
 }
 
 
