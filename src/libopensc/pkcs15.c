@@ -666,24 +666,48 @@ void sc_pkcs15_card_clear(sc_pkcs15_card_t *p15card)
 	}
 }
 
+/* lexically compare sc_app_info's by their paths */
+static int sc_find_app_cmp (struct sc_app_info *arg1, struct sc_app_info *arg2)
+{
+	struct sc_path *path1 = &arg1->path;
+	struct sc_path *path2 = &arg2->path;
+	int len, rc;
+
+	len = path1->len;
+	if (len > path2->len)
+		len = path2->len;
+	if ((rc = memcmp (path1->value, path2->value, len)) != 0)
+		return (rc);
+
+	if (path1->len < path2->len)
+		return (-1);
+	return (1);
+}
+	
+/* pick the latest app that meets the (optional) aid requirement */
 struct sc_app_info * sc_find_app(struct sc_card *card, struct sc_aid *aid)
 {
-	int ii;
+	int ii, best;
 
-	if (card->app_count <= 0)
+	best = -1;
+
+	for (ii = 0; ii < card->app_count; ii++) {
+		if (aid && aid->len) {
+			if (card->app[ii]->aid.len != aid->len)
+				continue;
+			if (memcmp (card->app[ii]->aid.value, aid->value,
+				    aid->len))
+				continue;
+		}
+		if (best == -1
+		    || sc_find_app_cmp (card->app[ii], card->app[best]) >= 0)
+			best = ii;
+	}
+
+	if (best == -1)
 		return NULL;
 
-	if (!aid || !aid->len)
-		return card->app[0];
-		
-	for (ii=0; ii < card->app_count; ii++) {
-		if (card->app[ii]->aid.len != aid->len)
-			continue;
-		if (memcmp(card->app[ii]->aid.value, aid->value, aid->len))
-			continue;
-		return card->app[ii];
-	}
-	return NULL;
+	return (card->app[best]);
 }
 
 static struct sc_app_info *sc_dup_app_info(const struct sc_app_info *info)
@@ -739,8 +763,9 @@ static int sc_pkcs15_bind_internal(sc_pkcs15_card_t *p15card, struct sc_aid *aid
 
 	info = sc_find_app(card, aid);
 	if (info)   {
-		sc_log(ctx, "bind to application('%s',aid:'%s')",  info->label, 
-				sc_dump_hex(info->aid.value, info->aid.len));
+		sc_log(ctx, "bind to application('%s',aid:'%s',path:'%s')",  info->label, 
+		       sc_dump_hex(info->aid.value, info->aid.len),
+		       sc_print_path (&info->path));
 		p15card->app = sc_dup_app_info(info);
 		if (!p15card->app)   {
 			err = SC_ERROR_OUT_OF_MEMORY;

@@ -2362,6 +2362,7 @@ sc_pkcs15init_update_dir(struct sc_pkcs15_card *p15card,
 	struct sc_context *ctx = p15card->card->ctx;
 	struct sc_card	*card = p15card->card;
 	int r, retry = 1;
+	int idx;
 
 	LOG_FUNC_CALLED(ctx);
 	if (profile->ops->emu_update_dir)   {
@@ -2387,7 +2388,26 @@ sc_pkcs15init_update_dir(struct sc_pkcs15_card *p15card,
 		sc_file_free(dir_file);
 	} while (retry--);
 
-	if (r >= 0) {
+	if (r < 0)
+		LOG_FUNC_RETURN (ctx, r);
+
+	/*
+	 * don't add another entry for this app
+	 * if it is already in the directory
+	 * (normally would only happen when
+	 * debugging)
+	 */
+	for (idx = 0; idx < card->app_count; idx++) {
+		struct sc_app_info *cap;
+		cap = card->app[idx];
+		if (strcmp (cap->label, app->label) == 0
+		    && cap->aid.len == app->aid.len
+		    && memcmp (cap->aid.value, app->aid.value, cap->aid.len) == 0
+		    && cap->path.len == app->path.len
+		    && memcmp (cap->path.value, app->path.value, cap->path.len) == 0)
+			break;
+	}
+	if (idx == card->app_count) {
 		card->app[card->app_count++] = app;
 		r = sc_update_dir(card, NULL);
 	}
