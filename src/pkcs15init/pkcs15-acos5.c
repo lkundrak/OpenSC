@@ -193,8 +193,6 @@ static int acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 static int
 acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_pkcs15_object_t *obj)
 {
-	/* uses prop_attrs to communitate with lower level acos5 create file (after pkcs15-asepcos.c) */
-
 	sc_pkcs15_prkey_info_t *key_info = (sc_pkcs15_prkey_info_t *) obj->data;
 	struct sc_file	*keyfile = NULL;
 	size_t		bytes, mod_len, exp_len, prv_len, pub_len;
@@ -374,81 +372,68 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 }
 
 
+static int acos5_do_authenticate(sc_profile_t *profile, sc_pkcs15_card_t *p15card, 
+	const sc_path_t *path, int op)
+{
+	int r;
+	sc_file_t *prkey = NULL;
+	r = sc_profile_get_file_by_path(profile, path, &prkey);
+	if (r != SC_SUCCESS) {
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to find file in profile");
+		return r;
+	}
+
+	r = sc_pkcs15init_authenticate(profile, p15card, prkey, op);
+	sc_file_free(prkey);
+	if (r != SC_SUCCESS) {
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to authenticate");
+		return r;
+	}
+	return SC_SUCCESS;	
+}
+
 static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	sc_pkcs15_object_t *obj, sc_pkcs15_prkey_t *key)
 {
 	sc_pkcs15_prkey_info_t *kinfo = (sc_pkcs15_prkey_info_t *) obj->data;
-	int       r, klen;
-	u8        buf[512], *p = buf;
-	sc_path_t tpath;
-	sc_cardctl_asepcos_change_key_t	ckdata;
-
-	if (obj->type != SC_PKCS15_TYPE_PRKEY_RSA) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "only RSA is currently supported");
-		return SC_ERROR_NOT_SUPPORTED;
-	}
+	int       r;
+	sc_cardctl_acos5_store_key_t	skdata;
+	struct sc_pkcs15_prkey_rsa *rsakey;
 
 	/* authenticate if necessary */
 	if (obj->auth_id.len != 0) {
-		r = asepcos_do_authenticate(profile, p15card, &kinfo->path, SC_AC_OP_UPDATE);
+		r = acos5_do_authenticate(profile, p15card, &kinfo->path, SC_AC_OP_UPDATE);
 		if (r != SC_SUCCESS) 
 			return r;
 	}
 
 	/* select the rsa private key */
-	memset(&tpath, 0, sizeof tpath);
-	tpath.type = SC_PATH_TYPE_FILE_ID;
-	tpath.len  = 2;
-	tpath.value[0] = kinfo->path.value[kinfo->path.len-2];
-	tpath.value[1] = kinfo->path.value[kinfo->path.len-1];
-	r = sc_select_file(p15card->card, &tpath, NULL);
+	r = sc_select_file(p15card->card, &kinfo->path, NULL);
 	if (r != SC_SUCCESS) {
 		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to select rsa key file");
 		return r;
 	}
 
-	/* store key parts in buffer */
-	*p++ = 0xc1;
-	*p++ = 0x82;
-	p   += 2;
-#if 0
-	/* private exponent */
-	*p++ = 0x92;
-	SET_TLV_LENGTH(p, rsakey->d.len);
-	memcpy(p, rsakey->d.data, rsakey->d.len);
-	p += rsakey->d.len;
-#else
-	/* public exponent */
-	*p++ = 0x90;
-	SET_TLV_LENGTH(p, rsakey->exponent.len);
-	memcpy(p, rsakey->exponent.data, rsakey->exponent.len);
-	p   += rsakey->exponent.len;
-#endif
-	/* primes p, q */
-	*p++ = 0x93;
-	SET_TLV_LENGTH(p, (rsakey->p.len + rsakey->q.len));
-	memcpy(p, rsakey->p.data, rsakey->p.len);
-	p += rsakey->p.len;
-	memcpy(p, rsakey->q.data, rsakey->q.len);
-	p += rsakey->q.len;
+	memset (&skdata, 0, sizeof skdata);
+	if (obj->type != SC_PKCS15_TYPE_PRKEY_RSA) {
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "only RSA is currently supported");
+		return SC_ERROR_NOT_SUPPORTED;
+	}
+	rsakey = &key->u.rsa;
 
-	/* key TLV length */
-	klen = p - buf - 4;
-	buf[2] = (klen >> 8) & 0xff;
-	buf[3] = klen & 0xff;
+	skdata.key_type = 1;
+	skdata.modulus = rsakey->modulus.data;
+	skdata.modulus_len = rsakey->modulus.len;
+	skdata.d = rsakey->d.data;
+	skdata.d_len = rsakey->d.len;
 
-	ckdata.data    = buf;
-	ckdata.datalen = p - buf;
-
-	r = sc_card_ctl(p15card->card, SC_CARDCTL_ASEPCOS_CHANGE_KEY, &ckdata);
+	r = sc_card_ctl(p15card->card, SC_CARDCTL_ACOS5_STORE_KEY, &skdata);
 	if (r != SC_SUCCESS) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to change key data");
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to store key data");
 		return r;
 	}
 	
 	return SC_SUCCESS;
-}
-
 }
 
 static struct sc_pkcs15init_operations sc_pkcs15init_acos5_operations = {
