@@ -63,6 +63,7 @@ static int acos5_init(sc_card_t * card)
 
 	_sc_card_add_rsa_alg(card, 512, flags, 0);
 	_sc_card_add_rsa_alg(card, 1024, flags, 0);
+	/* card also supports 2048, but some driver tweaks are needed */
 
 	card->caps |= SC_CARD_CAP_USE_FCI_AC;
 	card->max_recv_size = 128;
@@ -163,17 +164,43 @@ static int acos5_get_serialnr(sc_card_t * card, sc_serial_number_t * serial)
 }
 
 int
-acos_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_info_t *stkey)
+acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 {
-	struct sc_pkcs15_prkey_rsa *prkey;
+	int need;
+	u8 data[256];
+	int dlen;
+	sc_apdu_t apdu;
+	int r;
 
-	prkey = stkey->prkey_rsa;
-
+	need = 5 + stkey->d_len;
+	if (need > sizeof data) {
+		return SC_ERROR_INTERNAL;
+	}
+		
 	dlen = 0;
-	data[dlen++] = stkey->key_type;
-	data[dlen++] = prkey->modulus.len / 16;
+	data[dlen++] = 1; /* private non crt */
+	data[dlen++] = stkey->modulus_len / 16;
 	data[dlen++] = (stkey->other_key_file_id >> 8) & 0xff;
 	data[dlen++] = stkey->other_key_file_id & 0xff;
+	data[dlen++] = 0;
+	memcpy (data + dlen, stkey->d, stkey->d_len);
+	dlen += stkey->d_len;
+
+	/* caller should already have select the destination file */
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, 0);
+	apdu.cla = 0x80;
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
+	apdu.data = data;
+	apdu.flags |= SC_APDU_FLAGS_CHAINING;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+		return SC_ERROR_INTERNAL;
+
+	
+	
 }
 
 static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)
@@ -187,7 +214,7 @@ static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)
 		return (0);
 
 	case SC_CARDCTL_ACOS5_STORE_KEY:
-		return acos5_store_key (card, (sc_cardctl_acos5_store_key_info_t *)ptr);
+		return acos5_store_key (card, (sc_cardctl_acos5_store_key_t *)ptr);
 
 	default:
 		return SC_ERROR_NOT_SUPPORTED;
