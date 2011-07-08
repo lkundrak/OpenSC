@@ -1031,6 +1031,14 @@ typedef struct sc_cardctl_isoApplet_import_key {
 	} privkey;
 } sc_cardctl_isoApplet_import_key_t;
 
+/*
+ * acos5
+ */
+struct sc_cardctl_acos5_store_key_info {
+	unsigned int key_type;
+	struct sc_pkcs15_prkey_rsa *prkey_rsa;
+} sc_cardctl_acos5_store_key_info_t;
+
 #ifdef __cplusplus
 }
 #endif

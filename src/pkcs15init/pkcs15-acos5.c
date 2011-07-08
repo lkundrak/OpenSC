@@ -374,6 +374,83 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 }
 
 
+static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
+	sc_pkcs15_object_t *obj, sc_pkcs15_prkey_t *key)
+{
+	sc_pkcs15_prkey_info_t *kinfo = (sc_pkcs15_prkey_info_t *) obj->data;
+	int       r, klen;
+	u8        buf[512], *p = buf;
+	sc_path_t tpath;
+	sc_cardctl_asepcos_change_key_t	ckdata;
+
+	if (obj->type != SC_PKCS15_TYPE_PRKEY_RSA) {
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "only RSA is currently supported");
+		return SC_ERROR_NOT_SUPPORTED;
+	}
+
+	/* authenticate if necessary */
+	if (obj->auth_id.len != 0) {
+		r = asepcos_do_authenticate(profile, p15card, &kinfo->path, SC_AC_OP_UPDATE);
+		if (r != SC_SUCCESS) 
+			return r;
+	}
+
+	/* select the rsa private key */
+	memset(&tpath, 0, sizeof tpath);
+	tpath.type = SC_PATH_TYPE_FILE_ID;
+	tpath.len  = 2;
+	tpath.value[0] = kinfo->path.value[kinfo->path.len-2];
+	tpath.value[1] = kinfo->path.value[kinfo->path.len-1];
+	r = sc_select_file(p15card->card, &tpath, NULL);
+	if (r != SC_SUCCESS) {
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to select rsa key file");
+		return r;
+	}
+
+	/* store key parts in buffer */
+	*p++ = 0xc1;
+	*p++ = 0x82;
+	p   += 2;
+#if 0
+	/* private exponent */
+	*p++ = 0x92;
+	SET_TLV_LENGTH(p, rsakey->d.len);
+	memcpy(p, rsakey->d.data, rsakey->d.len);
+	p += rsakey->d.len;
+#else
+	/* public exponent */
+	*p++ = 0x90;
+	SET_TLV_LENGTH(p, rsakey->exponent.len);
+	memcpy(p, rsakey->exponent.data, rsakey->exponent.len);
+	p   += rsakey->exponent.len;
+#endif
+	/* primes p, q */
+	*p++ = 0x93;
+	SET_TLV_LENGTH(p, (rsakey->p.len + rsakey->q.len));
+	memcpy(p, rsakey->p.data, rsakey->p.len);
+	p += rsakey->p.len;
+	memcpy(p, rsakey->q.data, rsakey->q.len);
+	p += rsakey->q.len;
+
+	/* key TLV length */
+	klen = p - buf - 4;
+	buf[2] = (klen >> 8) & 0xff;
+	buf[3] = klen & 0xff;
+
+	ckdata.data    = buf;
+	ckdata.datalen = p - buf;
+
+	r = sc_card_ctl(p15card->card, SC_CARDCTL_ASEPCOS_CHANGE_KEY, &ckdata);
+	if (r != SC_SUCCESS) {
+		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to change key data");
+		return r;
+	}
+	
+	return SC_SUCCESS;
+}
+
+}
+
 static struct sc_pkcs15init_operations sc_pkcs15init_acos5_operations = {
 	NULL, /* erase_card */
 	acos5_init_card, /* init_card */
@@ -383,7 +460,7 @@ static struct sc_pkcs15init_operations sc_pkcs15init_acos5_operations = {
 	acos5_create_pin, /* create_pin (required) */
 	NULL, /* select_key_reference */
 	acos5_create_key, /* create_key */
-	NULL, /* store_key */
+	acos5_store_key, /* store_key */
 	acos5_generate_key, /* generate_key */
 	NULL, /* encode_private_key */
 	NULL, /* encode_public_key */
