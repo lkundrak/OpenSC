@@ -280,6 +280,12 @@ enum {
 	SC_CARDCTL_GIDS_INITIALIZE,
 	SC_CARDCTL_GIDS_SET_ADMIN_KEY,
 	SC_CARDCTL_GIDS_AUTHENTICATE_ADMIN,
+
+	/*
+	 * acos5
+	 */
+	SC_CARDCTL_ACOS5_STORE_BASE = _CTL_PREFIX('A','C','5'),
+	SC_CARDCTL_ACOS5_STORE_KEY
 };
 
 enum {
@@ -1034,10 +1040,14 @@ typedef struct sc_cardctl_isoApplet_import_key {
 /*
  * acos5
  */
-struct sc_cardctl_acos5_store_key_info {
+typedef struct sc_cardctl_acos5_store_key {
 	unsigned int key_type;
-	struct sc_pkcs15_prkey_rsa *prkey_rsa;
-} sc_cardctl_acos5_store_key_info_t;
+	u8 *modulus;
+	size_t modulus_len;
+	u8 *d;
+	size_t d_len;
+	int other_key_file_id;
+} sc_cardctl_acos5_store_key_t;
 
 #ifdef __cplusplus
 }
