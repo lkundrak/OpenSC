@@ -162,6 +162,20 @@ static int acos5_get_serialnr(sc_card_t * card, sc_serial_number_t * serial)
 	return SC_SUCCESS;
 }
 
+int
+acos_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_info_t *stkey)
+{
+	struct sc_pkcs15_prkey_rsa *prkey;
+
+	prkey = stkey->prkey_rsa;
+
+	dlen = 0;
+	data[dlen++] = stkey->key_type;
+	data[dlen++] = prkey->modulus.len / 16;
+	data[dlen++] = (stkey->other_key_file_id >> 8) & 0xff;
+	data[dlen++] = stkey->other_key_file_id & 0xff;
+}
+
 static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)
 {
 	switch (cmd) {
@@ -171,6 +185,9 @@ static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)
 
 	case SC_CARDCTL_LIFECYCLE_SET:
 		return (0);
+
+	case SC_CARDCTL_ACOS5_STORE_KEY:
+		return acos5_store_key (card, (sc_cardctl_acos5_store_key_info_t *)ptr);
 
 	default:
 		return SC_ERROR_NOT_SUPPORTED;
