@@ -34,8 +34,6 @@
 
 #define ACOS5_EXPONENT 3
 
-static sc_pkcs15_id_t acos5_tmp_pubkey_id;
-
 /*
  * Card initialization.
  */
@@ -58,7 +56,7 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	return (0);
 }
 
-#define ACOS_MAIN_SE_FILE 0x6021
+#define ACOS5_MAIN_SE_FILE 0x6021
 
 /*
  * Initialize the Application DF
@@ -74,29 +72,38 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	u8 type_attr[100];
 	int type_attr_len;
 	sc_file_t *pinfile;
-
-	r = sc_create_file (p15card->card, df);
-	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
-		r = 0;
-	LOG_TEST_RET (ctx, r, "can't create appdir");
+	sc_file_t *file;
 
 	if (0) {
 		/* create SE file */
 		p = sec_attr;
 		*p++ = 0x8d;
 		*p++ = 2;
-		*p++ = (ACOS_MAIN_SE_FILE >> 8) & 0xff;
-		*p++ = ACOS_MAIN_SE_FILE & 0xff;
+		*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+		*p++ = ACOS5_MAIN_SE_FILE & 0xff;
 		/* later will put Security Attributes Compact here too */
 		sec_attr_len = p - sec_attr;
 		
 		sc_file_set_sec_attr (df, sec_attr,  sec_attr_len);
-		
-		r = sc_create_file (p15card->card, df);
-		SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL,
-			     r, "can't create fresh appdir");
 	}
+
+	r = sc_create_file (p15card->card, df);
+	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
+		r = 0;
+	LOG_TEST_RET (ctx, r, "can't create appdir");
 	
+	if (0) {
+		file = sc_file_new ();
+		file->path = p15card->app->path;
+		sc_append_file_id (&file->path, ACOS5_MAIN_SE_FILE);
+		file->type = SC_FILE_TYPE_INTERNAL_EF;
+		file->ef_structure = SC_FILE_EF_LINEAR_VARIABLE;
+		file->id = ACOS5_MAIN_SE_FILE;
+		file->status = SC_FILE_STATUS_CREATION;
+	}
+
+	
+
 	return (r);
 }
 
@@ -235,6 +242,8 @@ done:
 static int
 clear_mse (sc_card_t *card)
 {
+	/* select the current file over again to clear the security parameters */
+
 	const u8 id[2] = { 0x3f, 0xff };
 	sc_apdu_t apdu;
 	int r;
@@ -250,8 +259,10 @@ clear_mse (sc_card_t *card)
 	return (0);
 }
 	
+#define ACOS5_PRIVKEY_FILE_ID 0x9ac2
+
 static int
-set_dst (sc_card_t *card, sc_pkcs15_id_t *id, int qual_byte)
+set_dst (sc_card_t *card, int file_id, int qual_byte)
 {
 	int dlen;
 	u8 data[1000]; /* XXX */
@@ -267,11 +278,11 @@ set_dst (sc_card_t *card, sc_pkcs15_id_t *id, int qual_byte)
 	data[dlen++] = 0x10;
 
 	data[dlen++] = 0x81;
-	data[dlen++] = id->len;
-	for (i = 0; i < id->len; i++)
-		data[dlen++] = id->value[i];
+	data[dlen++] = 2;
+	data[dlen++] = (file_id >> 8) & 0xff;
+	data[dlen++] = file_id & 0xff;
 
-	data[dlen++] = 0x85;
+	data[dlen++] = 0x95;
 	data[dlen++] = 0x01;
 	data[dlen++] = qual_byte;
 
@@ -311,12 +322,6 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "store key with ID:%s and path:%s", 
 			sc_pkcs15_print_id(&key_info->id), sc_print_path(&key_info->path));
 
-
-	acos5_tmp_pubkey_id.len = 2;
-	acos5_tmp_pubkey_id.value[0] = (ACOS5_TMP_PUBKEY >> 8) & 0xff;
-	acos5_tmp_pubkey_id.value[1] = ACOS5_TMP_PUBKEY & 0xff;
-
-
 	file = sc_file_new ();
 	file->path.len = p15card->app->path.len;
 	memcpy (file->path.value, p15card->app->path.value, 
@@ -339,17 +344,19 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	r = sc_pkcs15init_authenticate(profile, p15card, file, SC_AC_OP_GENERATE);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "No authorisation to generate private key");
 
-	r = clear_mse (card);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't clear_mse");	
+	if (0) {
+		r = clear_mse (card);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't clear_mse");	
+	}
 
-	r = set_dst (card, &key_info->id, 0x40);
+	r = set_dst (card, ACOS5_PRIVKEY_FILE_ID, 0x40);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for priv key");
 
-	r = set_dst (card, &acos5_tmp_pubkey_id, 0x80);
+	r = set_dst (card, ACOS5_TMP_PUBKEY, 0x80);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for pub key");
 
 	dlen = 0;
-	data[dlen++] = key_info->modulus_length / 128;
+	data[dlen++] = key_info->modulus_length / 8 / 16;
 
 	unsigned int val = ACOS5_EXPONENT, i;
 	for (i = 0; i < 8; i++) {
