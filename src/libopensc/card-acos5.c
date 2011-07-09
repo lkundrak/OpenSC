@@ -171,8 +171,15 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	int dlen;
 	sc_apdu_t apdu;
 	int r;
-	int file_id;
 	int firsttime;
+	int priv_file_id, pub_file_id;
+	int exponent;
+	int i;
+	sc_file_t *file;
+	int len;
+
+	priv_file_id = (stkey->priv_path.value[0] << 8) | stkey->priv_path.value[1];
+	pub_file_id = 0x9900 | (priv_file_id & 0x00ff);
 
 	need = 5 + stkey->d_len;
 	if (need > sizeof data) {
@@ -183,22 +190,18 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	data[dlen++] = 1; /* private non crt */
 	data[dlen++] = stkey->modulus_len / 16;
 
-	file_id = 0x9001;
-	data[dlen++] = (file_id >> 8) & 0xff;
-	data[dlen++] = file_id & 0xff;
-	data[dlen++] = 1;
+	data[dlen++] = (pub_file_id >> 8) & 0xff;
+	data[dlen++] = pub_file_id & 0xff;
+	data[dlen++] = 1; /* key complete */
 	memcpy (data + dlen, stkey->d, stkey->d_len);
 	dlen += stkey->d_len;
 
-
 	/* caller should already have selected the destination file */
 
-	firsttime = 64;
-
 	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, 0);
-	apdu.cla |= 0x90;
-	apdu.lc = firsttime;
-	apdu.datalen = firsttime;
+	apdu.cla |= 0x80;
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
 	apdu.data = data;
 	apdu.flags |= SC_APDU_FLAGS_CHAINING;
 	r = sc_transmit_apdu(card, &apdu);
@@ -206,27 +209,62 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
 		return SC_ERROR_INTERNAL;
 
-	
-	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, firsttime);
+	/* now do pubkey file */
+	need = 5 + 8 + stkey->modulus_len;
+	if (need > sizeof data)
+		return (SC_ERROR_INTERNAL);
+
+	exponent = 0;
+	for (i = 0; i < stkey->exponent_len; i++)
+		exponent = (exponent << 8) | stkey->exponent[i];
+
+	dlen = 0;
+	data[dlen++] = 0; /* public */
+	data[dlen++] = stkey->modulus_len / 16;
+	data[dlen++] = (priv_file_id >> 8) & 0xff;
+	data[dlen++] = priv_file_id & 0xff;
+	data[dlen++] = 1; /* key complete */
+
+	/* put 16 bit exponent into 8 byte field */
+	for (i = 0; i < 6; i++)
+		data[dlen++] = 0;
+	data[dlen++] = (exponent >> 8) & 0xff;
+	data[dlen++] = exponent & 0xff;
+
+	memcpy (data + dlen, stkey->modulus, stkey->modulus_len);
+	dlen += stkey->modulus_len;
+
+	file = sc_file_new ();
+	file->path = stkey->priv_path;
+	len = file->path.len;
+	file->path.value[len - 2] = (pub_file_id >> 8) & 0xff;
+	file->path.value[len - 1] = pub_file_id & 0xff;
+	file->id = pub_file_id;
+	file->type = SC_FILE_TYPE_INTERNAL_EF;
+	file->ef_structure = SC_FILE_EF_TRANSPARENT;
+
+	file->size = dlen;
+	file->status = SC_FILE_STATUS_CREATION;
+	r = sc_create_file(card, file);
+	if (r < 0) {
+		if (r != SC_ERROR_FILE_ALREADY_EXISTS) 
+			SC_TEST_RET (card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't make temporary pubkey file");
+		r = sc_select_file(card, &file->path, NULL);
+	}
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't select pubkey file");
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, 0);
 	apdu.cla |= 0x80;
-	apdu.lc = dlen - firsttime;
-	apdu.datalen = dlen - firsttime;
-	apdu.data = data + firsttime;
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
+	apdu.data = data;
 	apdu.flags |= SC_APDU_FLAGS_CHAINING;
 	r = sc_transmit_apdu(card, &apdu);
 	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
 	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
 		return SC_ERROR_INTERNAL;
-
 	
-	u8 rbuf[128];
-
-	sc_format_apdu (card, &apdu, SC_APDU_CASE_2_SHORT, 0xca, 0, 0);
-	apdu.cla |= 0x80;
-	apdu.resp = rbuf;
-	apdu.resplen = sizeof rbuf;
-	apdu.le = 64;
-	r = sc_transmit_apdu (card, &apdu);
+	SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
 static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)

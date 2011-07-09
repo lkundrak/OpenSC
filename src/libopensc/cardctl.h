@@ -1042,11 +1042,23 @@ typedef struct sc_cardctl_isoApplet_import_key {
  */
 typedef struct sc_cardctl_acos5_store_key {
 	unsigned int key_type;
+	sc_path_t priv_path;
 	u8 *modulus;
 	size_t modulus_len;
+	u8 *exponent;
+	size_t exponent_len;
 	u8 *d;
 	size_t d_len;
-	int other_key_file_id;
+	u8 *p;
+	size_t p_len;
+	u8 *q;
+	size_t q_len;
+	u8 *iqmp;
+	size_t iqmp_len;
+	u8 *dmp1;
+	size_t dmp1_len;
+	u8 *dmq1;
+	size_t dmq1_len;
 } sc_cardctl_acos5_store_key_t;
 
 #ifdef __cplusplus

@@ -215,7 +215,7 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_pkcs15_obj
 	if (r < 0)
 		return r;
 
-	keyfile->size = key_info->modulus_length / 8;
+	keyfile->size = key_info->modulus_length / 8 + 5;
 
 	if ((r = sc_pkcs15init_fixup_file(profile, p15card, keyfile)) < 0)
 		goto done;
@@ -429,10 +429,23 @@ static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	rsakey = &key->u.rsa;
 
 	skdata.key_type = 1;
+	skdata.priv_path = kinfo->path;
 	skdata.modulus = rsakey->modulus.data;
 	skdata.modulus_len = rsakey->modulus.len;
+	skdata.exponent = rsakey->exponent.data;
+	skdata.exponent_len = rsakey->exponent.len;
 	skdata.d = rsakey->d.data;
 	skdata.d_len = rsakey->d.len;
+	skdata.p = rsakey->p.data;
+	skdata.p_len = rsakey->p.len;
+	skdata.q = rsakey->q.data;
+	skdata.q_len = rsakey->q.len;
+	skdata.iqmp = rsakey->iqmp.data;
+	skdata.iqmp_len = rsakey->iqmp.len;
+	skdata.dmp1 = rsakey->dmp1.data;
+	skdata.dmp1_len = rsakey->dmp1.len;
+	skdata.dmq1 = rsakey->dmq1.data;
+	skdata.dmq1_len = rsakey->dmq1.len;
 
 	r = sc_card_ctl(p15card->card, SC_CARDCTL_ACOS5_STORE_KEY, &skdata);
 	if (r != SC_SUCCESS) {
@@ -443,8 +456,187 @@ static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	return SC_SUCCESS;
 }
 
+struct ec_file {
+	struct ec_file *next;
+	struct ec_file *prev;
+	struct ec_file *parent;
+	struct ec_file *first_child;
+	struct ec_file *last_child;
+	sc_path_t path;
+};
+
+int
+get_files (struct sc_card *card, struct ec_file *parent)
+{
+	int r;
+	sc_apdu_t apdu;
+	int count;
+	int fileno;
+	int is_directory;
+	int file_id;
+	struct ec_file *fp;
+
+	r = sc_select_file (card, &parent->path, NULL);
+	SC_TEST_RET (card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't select path");
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_1, 0x14, 0x01,  0x00);
+	apdu.cla |= 0x80;
+	r = sc_transmit_apdu (card, &apdu);
+	SC_TEST_RET (card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	if (apdu.sw1 != 0x90)
+		return SC_ERROR_INTERNAL;
+	count = apdu.sw2;
+
+	for (fileno = 0; fileno < count; fileno++) {
+		u8 info[8];
+
+		sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT, 0x14, 0x02, fileno);
+		apdu.cla |= 0x80;
+		apdu.resp = info;
+		apdu.resplen = sizeof(info);
+		apdu.le = sizeof(info);
+		r = sc_transmit_apdu(card, &apdu);
+		SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+		if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+			return SC_ERROR_INTERNAL;
+		
+		is_directory = 0;
+		if (info[0] == 0x38 || info[0] == 0x3f)
+			is_directory = 1;
+		file_id = (info[2] << 8) | info[3];
+
+		if ((fp = calloc (1, sizeof *fp)) == NULL) {
+			sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL, "out of memory");
+			return (SC_ERROR_INTERNAL);
+		}
+		fp->parent = parent;
+
+		fp->next = NULL;
+		if (parent->first_child == NULL) {
+			fp->prev = NULL;
+			parent->first_child = fp;
+		} else {
+			fp->prev = parent->last_child;
+			parent->last_child->next = fp;
+		}
+		parent->last_child = fp;
+
+		fp->path = parent->path;
+		sc_append_file_id (&fp->path, file_id);
+
+		if (is_directory) {
+			r = get_files (card, fp);
+			SC_TEST_RET (card->ctx, SC_LOG_DEBUG_NORMAL, r, "recursive get_files failed");
+
+			r = sc_select_file (card, &parent->path, NULL);
+			SC_TEST_RET (card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't select path");
+		}
+	}
+
+	return (0);
+}
+
+void
+print_files (int indent, struct ec_file *dir)
+{
+	int i;
+	struct ec_file *fp;
+
+	for (i = 0; i < indent; i++)
+		printf ("  ");
+	printf ("%s\n", sc_print_path(&dir->path));
+
+	for (fp = dir->first_child; fp; fp = fp->next)
+		print_files (indent + 1, fp);
+}
+
+int
+delete_file (struct sc_card *card, struct ec_file *fp)
+{
+	int r;
+	sc_apdu_t apdu;
+
+	r = sc_select_file (card, &fp->path, NULL);
+	SC_TEST_RET (card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't select path");
+	
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_1, 0xe4, 0, 0);
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+		return (-1);
+	return (0);
+}
+
+int
+delete_pass (struct sc_card *card, struct ec_file *fp)
+{
+	struct ec_file *child, *prev, *grandchild;
+	int success;
+	int delete_count;
+
+	delete_count = 0;
+
+	child = fp->last_child;
+	while (child) {
+		for (grandchild = child->last_child; grandchild; grandchild = grandchild->prev) {
+			delete_count += delete_pass (card, grandchild);
+		}
+
+		printf ("try delete %s\n", sc_print_path (&child->path));
+		if (delete_file (card, child) < 0)
+			break;
+
+		delete_count++;
+
+		/* chop this child off the tail of the list */
+		if ((prev = child->prev) == NULL) {
+			child->parent->first_child = NULL;
+			child->parent->last_child = NULL;
+		} else {
+			child->parent->last_child = prev;
+			child->prev->next = NULL;
+		}
+
+		/* free (child); enable after all else works... */
+		
+		child = prev;
+	}
+
+	return (delete_count);
+}
+	
+
+static int 
+acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
+{
+	struct ec_file root;
+	int r;
+	int pass;
+
+	memset (&root, 0, sizeof root);
+	sc_format_path("3F00", &root.path);
+
+	r = get_files (p15card->card, &root);
+	SC_TEST_RET (p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't get files");
+	
+	print_files (0, &root);
+
+	pass = 0;
+	while (1) {
+		pass++;
+		printf ("delete pass %d\n", pass);
+		if (delete_pass (p15card->card, &root) == 0) {
+			printf ("nothing left to delete\n");
+			break;
+		}
+	}
+
+	return (0);
+}
+
+
 static struct sc_pkcs15init_operations sc_pkcs15init_acos5_operations = {
-	NULL, /* erase_card */
+	acos5_erase_card, /* erase_card */
 	acos5_init_card, /* init_card */
 	acos5_create_dir, /* create_dir (required) */
 	NULL, /* create_domain */
