@@ -173,14 +173,29 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	int r;
 	int firsttime;
 	int priv_file_id, pub_file_id;
-	int exponent;
 	int i;
 	sc_file_t *file;
 	int len;
+	sc_path_t *priv_path;
+	u8 exponent_for_card[8];
+	int off;
 
-	priv_file_id = (stkey->priv_path.value[0] << 8) | stkey->priv_path.value[1];
+	if (stkey->exponent_len > sizeof exponent_for_card)
+		return SC_ERROR_INTERNAL;
+
+	memset (exponent_for_card, 0, sizeof exponent_for_card);
+	off = sizeof exponent_for_card - stkey->exponent_len;
+	memcpy (exponent_for_card + off, stkey->exponent, stkey->exponent_len);
+
+	priv_path = &stkey->priv_path;
+	len = priv_path->len;
+
+	if (len < 2)
+		return SC_ERROR_INTERNAL;
+	priv_file_id = priv_path->value[len - 2] << 8 | priv_path->value[len - 1];
 	pub_file_id = 0x9900 | (priv_file_id & 0x00ff);
 
+	/* first, store private key */
 	need = 5 + stkey->d_len;
 	if (need > sizeof data) {
 		return SC_ERROR_INTERNAL;
@@ -214,23 +229,14 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	if (need > sizeof data)
 		return (SC_ERROR_INTERNAL);
 
-	exponent = 0;
-	for (i = 0; i < stkey->exponent_len; i++)
-		exponent = (exponent << 8) | stkey->exponent[i];
-
 	dlen = 0;
 	data[dlen++] = 0; /* public */
 	data[dlen++] = stkey->modulus_len / 16;
 	data[dlen++] = (priv_file_id >> 8) & 0xff;
 	data[dlen++] = priv_file_id & 0xff;
 	data[dlen++] = 1; /* key complete */
-
-	/* put 16 bit exponent into 8 byte field */
-	for (i = 0; i < 6; i++)
-		data[dlen++] = 0;
-	data[dlen++] = (exponent >> 8) & 0xff;
-	data[dlen++] = exponent & 0xff;
-
+	memcpy (data + dlen, exponent_for_card, 8);
+	dlen += 8;
 	memcpy (data + dlen, stkey->modulus, stkey->modulus_len);
 	dlen += stkey->modulus_len;
 
