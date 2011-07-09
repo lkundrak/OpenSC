@@ -102,8 +102,19 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	*p++ = 0x0c; /* fdb linear variable ef */
 	*p++ = 0x01; /* dcb, unused in acos5 */
 	*p++ = 0x00; /* must be 0 */
-	*p++ = 32; /* mrl: max record len */
+	*p++ = 17; /* mrl: max record len */
 	*p++ = 1; /* nor: number of records */
+
+	*p++ = 0x8c; /* allow everything */
+	*p++ = 0x08;
+	*p++ = 0x7f;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
 
 	type_attr_len = p - type_attr;
 	sc_file_set_type_attr (sefile, type_attr, type_attr_len);

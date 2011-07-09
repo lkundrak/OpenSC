@@ -94,7 +94,7 @@ filesystem {
 
         DF PKCS15-AppDF {
  	        type      = DF;
-	        file-id   = 501a;
+	        file-id   = 501b;
             acl       = DELETE=$PIN, CREATE=$PIN;
 	    
 		# sort of like setcos.profile
