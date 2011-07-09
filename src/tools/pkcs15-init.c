@@ -141,6 +141,7 @@ enum {
 	OPT_UPDATE_EXISTING,
 	OPT_MD_CONTAINER_GUID,
 	OPT_VERSION,
+	OPT_TEST,
 
 	OPT_PIN1     = 0x10000,	/* don't touch these values */
 	OPT_PUK1     = 0x10001,
@@ -212,6 +213,7 @@ const struct option	options[] = {
 	/* Hidden options for testing */
 	{ "assert-pristine",	no_argument, NULL,		OPT_ASSERT_PRISTINE },
 	{ "secret",		required_argument, NULL,	OPT_SECRET },
+	{ "test",		no_argument, NULL,		OPT_TEST },
 	{ NULL, 0, NULL, 0 }
 };
 static const char *		option_help[] = {
@@ -294,6 +296,7 @@ enum {
 	ACTION_UPDATE_LAST_UPDATE,
 	ACTION_ERASE_APPLICATION,
 	ACTION_PRINT_VERSION,
+	ACTION_TEST,
 
 	ACTION_MAX
 };
@@ -377,6 +380,7 @@ static unsigned int		opt_secret_count;
 static int			opt_ignore_ca_certs = 0;
 static int			opt_update_existing = 0;
 static int			verbose = 0;
+static int			opt_test = 0;
 
 static struct sc_pkcs15init_callbacks callbacks = {
 	get_pin_callback,	/* get_pin() */
@@ -427,6 +431,258 @@ extern int	get_pin(sc_ui_hints_t *hints, char **out);
 static int	get_new_pin(sc_ui_hints_t *, const char *, const char *,
 			char **);
 
+void
+put_tlv1 (u8 **pp, int tag, int val)
+{
+	*(*pp)++ = tag;
+	*(*pp)++ = 1;
+	*(*pp)++ = val;
+}
+
+void
+put_tlv2 (u8 **pp, int tag, int val)
+{
+	*(*pp)++ = tag;
+	*(*pp)++ = 2;
+	*(*pp)++ = (val >> 8) & 0xff;
+	*(*pp)++ = val & 0xff;
+}
+
+int
+test_xmit_case_1 (int ins, int p1, int p2)
+{
+	struct sc_apdu apdu;
+	int r;
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_1, ins, p1, p2);
+	apdu.data = NULL;
+	apdu.datalen = 0;
+	apdu.lc = 0;
+	r = sc_transmit_apdu (card, &apdu);
+	if (r) {
+		fprintf (stderr, "transmit failed\n");
+		exit (1);
+	}
+	return ((apdu.sw1 << 8) | apdu.sw2);
+}
+
+int
+test_xmit_case_2 (int ins, int p1, int p2, u8 *data, int datalen)
+{
+	struct sc_apdu apdu;
+	int r;
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_2_SHORT, ins, p1, p2);
+	apdu.resp = data;
+	apdu.resplen = datalen;
+	apdu.le = datalen;
+	r = sc_transmit_apdu (card, &apdu);
+	if (r) {
+		fprintf (stderr, "transmit failed\n");
+		exit (1);
+	}
+	return ((apdu.sw1 << 8) | apdu.sw2);
+}
+
+int
+test_xmit_case_3 (int ins, int p1, int p2, u8 *data, int datalen)
+{
+	struct sc_apdu apdu;
+	int r;
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, ins, p1, p2);
+	apdu.data = data;
+	apdu.datalen = datalen;
+	apdu.lc = datalen;
+	r = sc_transmit_apdu (card, &apdu);
+	if (r) {
+		fprintf (stderr, "transmit failed\n");
+		exit (1);
+	}
+	return ((apdu.sw1 << 8) | apdu.sw2);
+}
+
+int
+test_select (int file_id)
+{
+	u8 data[256];
+	int dlen;
+	int val;
+
+	dlen = 0;
+	data[dlen++] = (file_id >> 8) & 0xff;
+	data[dlen++] = file_id & 0xff;
+
+	val = test_xmit_case_3 (0xa4, 0, 0, data, dlen);
+
+	printf ("select got 0x%x\n", val);
+
+	if (val != 0x9000 && val != 0x6a82) {
+		printf ("test_select 0x%04x error 0x%x\n", file_id, val);
+		exit (1);
+	}
+
+	return (val);
+}
+
+#define TESTDIR_FILE_ID 0x1018
+#define TESTDIR_SE_FILE_ID 0x1019
+#define TESETDIR_PRKEY_FILE_ID 0x101a
+
+int test_delete_list[] = {
+	TESTDIR_SE_FILE_ID,
+	TESTDIR_FILE_ID
+};
+
+void
+do_test_delete (void)
+{
+	int idx;
+	int file_id;
+	int val;
+
+	if (test_select (TESTDIR_FILE_ID) == 0x6a82)
+		return;
+
+	for (idx = 0; idx < sizeof test_delete_list / sizeof test_delete_list[0]; idx++) {
+		file_id = test_delete_list[idx];
+
+		test_select (TESTDIR_FILE_ID);
+		if (file_id != TESTDIR_FILE_ID)
+			test_select (file_id);
+		val = test_xmit_case_1 (0xe4, 0, 0);
+
+		if (val != 0x9000) {
+			printf ("error deleting file 0x%04x\n", file_id);
+			exit (1);
+		}
+	}
+}
+		
+void
+dump (void *buf, int n)
+{
+	int i;
+	int j;
+	int c;
+
+	for (i = 0; i < n; i += 16) {
+		printf ("%04x: ", i);
+		for (j = 0; j < 16; j++) {
+			if (i+j < n)
+				printf ("%02x ", ((unsigned char *)buf)[i+j]);
+			else
+				printf ("   ");
+		}
+		printf ("  ");
+		for (j = 0; j < 16; j++) {
+			c = ((unsigned char *)buf)[i+j] & 0x7f;
+			if (i+j >= n)
+				putchar (' ');
+			else if (c < ' ' || c == 0x7f)
+				putchar ('.');
+			else
+				putchar (c);
+		}
+		printf ("\n");
+
+	}
+}
+
+int
+get_response (u8 *data)
+{
+	int val;
+	val = test_xmit_case_2 (0xc0, 0, 0, data, 100);
+	if (val != 0x9000) {
+		printf ("get response error 0x%x\n", val);
+		exit (1);
+	}
+	return (val);
+}
+
+
+void
+do_test (void)
+{
+	u8 data[256], *dp;
+	int datalen;
+	int val;
+	
+	card->ctx->debug = 4;
+
+	test_select (0x3f00);
+
+	do_test_delete ();
+
+	/* make testdir */
+	dp = data;
+	*dp++ = 0x62;
+	dp++;
+	put_tlv2 (&dp, 0x80, 64); /* file size */
+	put_tlv1 (&dp, 0x82, 0x38); /* file type = DF */
+	put_tlv2 (&dp, 0x83, TESTDIR_FILE_ID);
+	put_tlv2 (&dp, 0x8d, TESTDIR_SE_FILE_ID);
+	datalen = dp - data;
+	data[1] = datalen - 2;
+	val = test_xmit_case_3 (0xe0, 0, 0, data, datalen);
+	if (val != 0x9000) {
+		fprintf (stderr, "can't create testdir\n");
+		exit (1);
+	}
+
+	test_select (TESTDIR_FILE_ID);
+	get_response (data);
+
+	/* make se file */
+	dp = data;
+	*dp++ = 0x62;
+	dp++;
+	*dp++ = 0x82; /* file type */
+	*dp++ = 0x05;
+	*dp++ = 0x0c;
+	*dp++ = 0x01;
+	*dp++ = 0x00;
+	*dp++ = 0x11;
+	*dp++ = 0x04;
+	put_tlv2 (&dp, 0x83, TESTDIR_SE_FILE_ID);
+	datalen = dp - data;
+	data[1] = datalen - 2;
+	val = test_xmit_case_3 (0xe0, 0, 0, data, datalen);
+	if (val != 0x9000) {
+		fprintf (stderr, "can't create se file\n");
+		exit (1);
+	}
+
+	/* write null se record using Update Record */
+	dp = data;
+	put_tlv1 (&dp, 0x80, 1);
+	*dp++ = 0xa4;
+	*dp++ = 0x00;
+	val = test_xmit_case_3 (0xdc, 0, 0, data, datalen);
+
+	/* create priv key file */
+	dp = data;
+	*dp++ = 0x62;
+	dp++;
+	put_tlv2 (&dp, 0x80, 64); /* file size */
+	put_tlv1 (&dp, 0x82, 0x38); /* file type = DF */
+	put_tlv2 (&dp, 0x83, TESTDIR_FILE_ID);
+	put_tlv2 (&dp, 0x8d, TESTDIR_SE_FILE_ID);
+	datalen = dp - data;
+	data[1] = datalen - 2;
+	val = test_xmit_case_3 (0xe0, 0, 0, data, datalen);
+	if (val != 0x9000) {
+		fprintf (stderr, "can't create testdir\n");
+		exit (1);
+	}
+
+
+
+	exit (0);
+}
+
+
 int
 main(int argc, char **argv)
 {
@@ -469,6 +725,12 @@ main(int argc, char **argv)
 	if (r < 0) {
 		printf("Couldn't bind to the card: %s\n", sc_strerror(r));
 		return 1;
+	}
+
+	if (opt_actions & (1 << ACTION_TEST)) {
+		do_test ();
+		printf ("test done\n");
+		exit (0);
 	}
 
 	for (n = 0; n < sizeof(pins)/sizeof(pins[0]); n++) {
@@ -2574,6 +2836,8 @@ handle_option(const struct option *opt)
 		break;
 	case OPT_VERSION:
 		this_action = ACTION_PRINT_VERSION;
+	case OPT_TEST:
+		this_action = ACTION_TEST;
 		break;
 	default:
 		util_print_usage_and_die(app_name, options, option_help, NULL);
