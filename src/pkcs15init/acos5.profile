@@ -106,6 +106,14 @@ filesystem {
 			ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
 		}
 
+		EF sefile {
+			file-id       = 6004;
+			structure     = 0x0c;
+			record-length = 32;
+			size          = 32;
+			ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
+		}
+
 
             EF PKCS15-ODF {
         	    file-id   = 5031;
