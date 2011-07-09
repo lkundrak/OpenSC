@@ -58,8 +58,12 @@ static int acos5_init(sc_card_t * card)
 {
 	unsigned long	flags;
 
-	flags = SC_ALGORITHM_RSA_RAW | SC_ALGORITHM_ONBOARD_KEY_GEN;
-	flags |= SC_ALGORITHM_RSA_HASH_NONE | SC_ALGORITHM_RSA_HASH_SHA1;
+	flags = 0;
+	flags |= SC_ALGORITHM_RSA_RAW;
+	flags |= SC_ALGORITHM_RSA_PAD_PKCS1;
+	flags |= SC_ALGORITHM_ONBOARD_KEY_GEN;
+	flags |= SC_ALGORITHM_RSA_HASH_NONE;
+	flags |= SC_ALGORITHM_RSA_HASH_SHA1;
 
 	_sc_card_add_rsa_alg(card, 512, flags, 0);
 	_sc_card_add_rsa_alg(card, 1024, flags, 0);
@@ -178,14 +182,18 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	int len;
 	sc_path_t *priv_path;
 	u8 exponent_for_card[8];
-	int off;
+	int card_idx;
 
 	if (stkey->exponent_len > sizeof exponent_for_card)
 		return SC_ERROR_INTERNAL;
 
+	/* card exponent is little endian */
 	memset (exponent_for_card, 0, sizeof exponent_for_card);
-	off = sizeof exponent_for_card - stkey->exponent_len;
-	memcpy (exponent_for_card + off, stkey->exponent, stkey->exponent_len);
+	card_idx = stkey->exponent_len - 1;
+	for (i = 0; i < stkey->exponent_len; i++) {
+		exponent_for_card[card_idx] = stkey->exponent[i];
+		card_idx--;
+	}
 
 	priv_path = &stkey->priv_path;
 	len = priv_path->len;
@@ -480,19 +488,23 @@ static int acos5_set_security_env(sc_card_t *card,
 	p = sbuf;
 	*p++ = 0x80;	/* algorithm reference */
 	*p++ = 0x01;
-	*p++ = 0x11;
+	*p++ = 0x10; /* or 0x11 for raw rsa */
 
 	*p++ = 0x95; /* qualifying byte */
 	*p++ = 1;
-	switch (env->operation) {
-	case SC_SEC_OPERATION_DECIPHER:
-		*p++ = 0x80;
-		break;
-	case SC_SEC_OPERATION_SIGN:
-		*p++ = 0x40;
-		break;
-	default:
-		return SC_ERROR_INVALID_ARGUMENTS;
+	if (1) {
+		*p++ = 0xff;
+	} else {
+		switch (env->operation) {
+		case SC_SEC_OPERATION_DECIPHER:
+			*p++ = 0x80;
+			break;
+		case SC_SEC_OPERATION_SIGN:
+			*p++ = 0x40;
+			break;
+		default:
+			return SC_ERROR_INVALID_ARGUMENTS;
+		}
 	}
 
 	if (env->flags & SC_SEC_ENV_FILE_REF_PRESENT) {

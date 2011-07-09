@@ -2,8 +2,6 @@
  * acos5 specific operations for PKCS15 initialization
  * (from pkcs15-myeid.c)
  *
- * Copyright (C) 2008-2009 Aventra Ltd.
- *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -32,8 +30,6 @@
 #include "pkcs15-init.h"
 #include "profile.h"
 
-#define ACOS5_EXPONENT 3
-
 /*
  * Card initialization.
  */
@@ -44,7 +40,7 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	sc_file_t	*file;
 	int		r;
 
-	/* could create MF here if card is really blank, I think */
+	/* should create MF here, if necessary */
 
 	sc_format_path("3F00", &path);
 	if ((r = sc_select_file(p15card->card, &path, &file)) < 0) {
@@ -290,8 +286,6 @@ clear_mse (sc_card_t *card)
 	return (0);
 }
 	
-#define ACOS5_PRIVKEY_FILE_ID 0x9ac2
-
 static int
 set_dst (sc_card_t *card, int file_id, int qual_byte)
 {
@@ -343,6 +337,9 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	int dlen;
 	u8 data[50];
 	sc_apdu_t apdu;
+	int file_id;
+	sc_path_t *privpath;
+	int len;
 	
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
@@ -361,13 +358,12 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	file->type = SC_FILE_TYPE_INTERNAL_EF;
 	file->ef_structure = SC_FILE_EF_TRANSPARENT;
 	file->id = ACOS5_TMP_PUBKEY;
-	file->size = 0x200;
+	file->size = 5 + 8 + 64; /* XXX */
 	file->status = SC_FILE_STATUS_CREATION;
 	r = sc_create_file(card, file);
 	if (r < 0 && r != SC_ERROR_FILE_ALREADY_EXISTS) 
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "can't make temporary pubkey file");
 	sc_file_free (file);
-
 
 	r = sc_select_file(card, &key_info->path, &file);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot store key: select key file failed");
@@ -380,7 +376,11 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't clear_mse");	
 	}
 
-	r = set_dst (card, ACOS5_PRIVKEY_FILE_ID, 0x40);
+	privpath = &key_info->path;
+	len = privpath->len;
+	file_id = (privpath->value[len - 2] << 8) | privpath->value[len - 1];
+
+	r = set_dst (card, file_id, 0x40);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for priv key");
 
 	r = set_dst (card, ACOS5_TMP_PUBKEY, 0x80);
@@ -389,10 +389,13 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	dlen = 0;
 	data[dlen++] = key_info->modulus_length / 8 / 16;
 
-	unsigned int val = ACOS5_EXPONENT, i;
-	for (i = 0; i < 8; i++) {
-		data[dlen++] = val;
-		val >>= 8;
+	if (1) {
+		/* little endian 8 byte exponent */
+		uint32_t val = 3, i;
+		for (i = 0; i < 8; i++) {
+			data[dlen++] = val & 0xff;
+			val >>= 8;
+		}
 	}
 
 	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0x46, 0x80, 0x00);
@@ -400,8 +403,10 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	apdu.datalen = dlen;
 	apdu.data = data;
 	r = sc_transmit_apdu (card, &apdu);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "generate key failed");
-	
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "transmit error");
+
+	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "generate key failed");
 
 	if (file) 
 		sc_file_free(file);
