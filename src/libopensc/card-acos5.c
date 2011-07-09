@@ -171,6 +171,8 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	int dlen;
 	sc_apdu_t apdu;
 	int r;
+	int file_id;
+	int firsttime;
 
 	need = 5 + stkey->d_len;
 	if (need > sizeof data) {
@@ -180,18 +182,23 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	dlen = 0;
 	data[dlen++] = 1; /* private non crt */
 	data[dlen++] = stkey->modulus_len / 16;
-	data[dlen++] = (stkey->other_key_file_id >> 8) & 0xff;
-	data[dlen++] = stkey->other_key_file_id & 0xff;
-	data[dlen++] = 0;
+
+	file_id = 0x9001;
+	data[dlen++] = (file_id >> 8) & 0xff;
+	data[dlen++] = file_id & 0xff;
+	data[dlen++] = 1;
 	memcpy (data + dlen, stkey->d, stkey->d_len);
 	dlen += stkey->d_len;
 
-	/* caller should already have select the destination file */
+
+	/* caller should already have selected the destination file */
+
+	firsttime = 64;
 
 	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, 0);
-	apdu.cla = 0x80;
-	apdu.lc = dlen;
-	apdu.datalen = dlen;
+	apdu.cla |= 0x90;
+	apdu.lc = firsttime;
+	apdu.datalen = firsttime;
 	apdu.data = data;
 	apdu.flags |= SC_APDU_FLAGS_CHAINING;
 	r = sc_transmit_apdu(card, &apdu);
@@ -200,7 +207,26 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 		return SC_ERROR_INTERNAL;
 
 	
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, firsttime);
+	apdu.cla |= 0x80;
+	apdu.lc = dlen - firsttime;
+	apdu.datalen = dlen - firsttime;
+	apdu.data = data + firsttime;
+	apdu.flags |= SC_APDU_FLAGS_CHAINING;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+		return SC_ERROR_INTERNAL;
+
 	
+	u8 rbuf[128];
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_2_SHORT, 0xca, 0, 0);
+	apdu.cla |= 0x80;
+	apdu.resp = rbuf;
+	apdu.resplen = sizeof rbuf;
+	apdu.le = 64;
+	r = sc_transmit_apdu (card, &apdu);
 }
 
 static int acos5_card_ctl(sc_card_t * card, unsigned long cmd, void *ptr)
