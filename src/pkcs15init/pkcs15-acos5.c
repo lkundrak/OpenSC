@@ -605,6 +605,23 @@ delete_pass (struct sc_card *card, struct ec_file *fp)
 	return (delete_count);
 }
 	
+int
+delete_every (struct sc_card *card, struct ec_file *fp)
+{
+	struct ec_file *child;
+	int delete_count;
+
+	delete_count = 0;
+
+	for (child = fp->first_child; child; child = child->next)
+		delete_count += delete_every (card, child);
+
+	printf ("try delete every %s\n", sc_print_path (&fp->path));
+	if (delete_file (card, fp) >= 0)
+		delete_count++;
+
+	return (delete_count);
+}
 
 static int 
 acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
@@ -629,6 +646,13 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 			printf ("nothing left to delete\n");
 			break;
 		}
+	}
+
+	printf ("last ditch effort:\n");
+	if (delete_every (p15card->card, &root)) {
+		printf ("got something ... it may help to run --erase-card again\n");
+	} else {
+		printf ("that's all\n");
 	}
 
 	return (0);
