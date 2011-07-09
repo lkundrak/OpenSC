@@ -570,36 +570,34 @@ delete_file (struct sc_card *card, struct ec_file *fp)
 int
 delete_pass (struct sc_card *card, struct ec_file *fp)
 {
-	struct ec_file *child, *prev, *grandchild;
 	int success;
-	int delete_count;
+	int this_count, delete_count;
+
+	if (fp == NULL)
+		return (0);
 
 	delete_count = 0;
 
-	child = fp->last_child;
-	while (child) {
-		for (grandchild = child->last_child; grandchild; grandchild = grandchild->prev) {
-			delete_count += delete_pass (card, grandchild);
-		}
-
-		printf ("try delete %s\n", sc_print_path (&child->path));
-		if (delete_file (card, child) < 0)
+	while (1) {
+		if ((this_count = delete_pass (card, fp->last_child)) == 0)
 			break;
+		delete_count += this_count;
+	}
 
+	printf ("try delete %s\n", sc_print_path (&fp->path));
+	if (delete_file (card, fp) >= 0) {
 		delete_count++;
 
 		/* chop this child off the tail of the list */
-		if ((prev = child->prev) == NULL) {
-			child->parent->first_child = NULL;
-			child->parent->last_child = NULL;
+		if (fp->prev == NULL) {
+			fp->parent->first_child = NULL;
+			fp->parent->last_child = NULL;
 		} else {
-			child->parent->last_child = prev;
-			child->prev->next = NULL;
+			fp->parent->last_child = fp->prev;
+			fp->parent->last_child->next = NULL;
 		}
 
-		/* free (child); enable after all else works... */
-		
-		child = prev;
+		/* probably safe to free(fp) here */
 	}
 
 	return (delete_count);
@@ -617,8 +615,10 @@ delete_every (struct sc_card *card, struct ec_file *fp)
 		delete_count += delete_every (card, child);
 
 	printf ("try delete every %s\n", sc_print_path (&fp->path));
-	if (delete_file (card, fp) >= 0)
+	if (delete_file (card, fp) >= 0) {
+		printf ("  success\n");
 		delete_count++;
+	}
 
 	return (delete_count);
 }
