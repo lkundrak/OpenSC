@@ -571,22 +571,19 @@ int
 delete_pass (struct sc_card *card, struct ec_file *fp)
 {
 	int success;
-	int this_count, delete_count;
+	int did_work;
+
 
 	if (fp == NULL)
 		return (0);
 
-	delete_count = 0;
-
-	while (1) {
-		if ((this_count = delete_pass (card, fp->last_child)) == 0)
-			break;
-		delete_count += this_count;
-	}
+	did_work = 0;
+	while (delete_pass (card, fp->last_child) > 0)
+		did_work = 1;
 
 	printf ("try delete %s\n", sc_print_path (&fp->path));
 	if (delete_file (card, fp) >= 0) {
-		delete_count++;
+		did_work = 1;
 
 		/* chop this child off the tail of the list */
 		if (fp->prev == NULL) {
@@ -600,7 +597,7 @@ delete_pass (struct sc_card *card, struct ec_file *fp)
 		/* probably safe to free(fp) here */
 	}
 
-	return (delete_count);
+	return (did_work);
 }
 	
 int
