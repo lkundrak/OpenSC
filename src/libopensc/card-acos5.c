@@ -463,6 +463,92 @@ static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
 	return (r);
 }
 
+static int acos5_set_security_env(sc_card_t *card,
+				    const sc_security_env_t *env,
+				    int se_num)
+{
+	sc_apdu_t apdu;
+	u8 sbuf[SC_MAX_APDU_BUFFER_SIZE];
+	u8 *p;
+	int r, locked = 0;
+
+	SC_FUNC_CALLED(card->ctx, SC_LOG_DEBUG_VERBOSE);
+
+	assert(card != NULL && env != NULL);
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0x22, 0x01, 0xb6);
+
+	p = sbuf;
+	*p++ = 0x80;	/* algorithm reference */
+	*p++ = 0x01;
+	*p++ = 0x11;
+
+	*p++ = 0x95; /* qualifying byte */
+	*p++ = 1;
+	switch (env->operation) {
+	case SC_SEC_OPERATION_DECIPHER:
+		*p++ = 0x80;
+		break;
+	case SC_SEC_OPERATION_SIGN:
+		*p++ = 0x40;
+		break;
+	default:
+		return SC_ERROR_INVALID_ARGUMENTS;
+	}
+
+	if (env->flags & SC_SEC_ENV_FILE_REF_PRESENT) {
+		*p++ = 0x81;
+		*p++ = env->file_ref.len;
+		assert (env->file_ref.len == 2);
+		assert(sizeof(sbuf) - (p - sbuf) >= env->file_ref.len);
+		memcpy(p, env->file_ref.value, env->file_ref.len);
+		p += env->file_ref.len;
+	}
+
+	r = p - sbuf;
+	apdu.lc = r;
+	apdu.datalen = r;
+	apdu.data = sbuf;
+	if (se_num > 0) {
+		r = sc_lock(card);
+		SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "sc_lock() failed");
+		locked = 1;
+	}
+	if (apdu.datalen != 0) {
+		r = sc_transmit_apdu(card, &apdu);
+		if (r) {
+			sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL,
+				"%s: APDU transmit failed", sc_strerror(r));
+			goto err;
+		}
+		r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+		if (r) {
+			sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL,
+				"%s: Card returned error", sc_strerror(r));
+			goto err;
+		}
+	}
+	if (se_num <= 0)
+		return 0;
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0x22, 0xF2, se_num);
+	r = sc_transmit_apdu(card, &apdu);
+	sc_unlock(card);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	return sc_check_sw(card, apdu.sw1, apdu.sw2);
+err:
+	if (locked)
+		sc_unlock(card);
+	return r;
+
+
+	SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+}
+
+static int acos5_restore_security_env(sc_card_t *card, int se_num)
+{
+	SC_FUNC_CALLED(card->ctx, SC_LOG_DEBUG_VERBOSE);
+	SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+	
+}
 
 static struct sc_card_driver *sc_get_driver(void)
 {
@@ -489,8 +575,8 @@ static struct sc_card_driver *sc_get_driver(void)
 	// get_challenge
 	// verify
 	// logout
-	// restore_security_env
-	// set_security_env
+	acos5_ops.restore_security_env = acos5_restore_security_env;
+	acos5_ops.set_security_env = acos5_set_security_env;
 	// decipher
 	// compute_signature
 	// change_reference_data
