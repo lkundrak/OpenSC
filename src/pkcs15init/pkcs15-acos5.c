@@ -56,7 +56,7 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	return (0);
 }
 
-#define ACOS5_MAIN_SE_FILE 0x6021
+#define ACOS5_MAIN_SE_FILE 0x6004
 
 /*
  * Initialize the Application DF
@@ -71,38 +71,69 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	int sec_attr_len;
 	u8 type_attr[100];
 	int type_attr_len;
-	sc_file_t *pinfile;
-	sc_file_t *file;
+	int dlen;
+	u8 data[256];
+	sc_apdu_t apdu;
+	sc_file_t *sefile;
 
-	if (0) {
-		/* create SE file */
-		p = sec_attr;
-		*p++ = 0x8d;
-		*p++ = 2;
-		*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
-		*p++ = ACOS5_MAIN_SE_FILE & 0xff;
-		/* later will put Security Attributes Compact here too */
-		sec_attr_len = p - sec_attr;
-		
-		sc_file_set_sec_attr (df, sec_attr,  sec_attr_len);
-	}
+	/* argument df describes the appdir we need to create */
+
+	/* add SE file ID field */
+	p = sec_attr;
+	*p++ = 0x8d;
+	*p++ = 2;
+	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
+	/* later will put Security Attributes Compact here too */
+	sec_attr_len = p - sec_attr;
+	sc_file_set_sec_attr (df, sec_attr,  sec_attr_len);
 
 	r = sc_create_file (p15card->card, df);
 	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
 		r = 0;
 	LOG_TEST_RET (ctx, r, "can't create appdir");
 	
-	if (0) {
-		file = sc_file_new ();
-		file->path = p15card->app->path;
-		sc_append_file_id (&file->path, ACOS5_MAIN_SE_FILE);
-		file->type = SC_FILE_TYPE_INTERNAL_EF;
-		file->ef_structure = SC_FILE_EF_LINEAR_VARIABLE;
-		file->id = ACOS5_MAIN_SE_FILE;
-		file->status = SC_FILE_STATUS_CREATION;
-	}
+	r = sc_select_file (p15card->card, &df->path, NULL);
+	LOG_TEST_RET (ctx, r, "can't select appdir");
 
+	/* now create the SE file within the appdir */
+	r = sc_profile_get_file (profile, "sefile", &sefile);
+	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot get sefile from profile");
+
+	p = type_attr;
+	*p++ = 0x82;
+	*p++ = 0x05;
+	*p++ = 0x0c; /* fdb linear variable ef */
+	*p++ = 0x01; /* dcb, unused in acos5 */
+	*p++ = 0x00; /* must be 0 */
+	*p++ = 32; /* mrl: max record len */
+	*p++ = 1; /* nor: number of records */
+
+	type_attr_len = p - type_attr;
+	sc_file_set_type_attr (sefile, type_attr, type_attr_len);
 	
+	r = sc_create_file (p15card->card, sefile);
+	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
+		r = 0;
+	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
+
+	/* see section 4.2 */
+	dlen = 0;
+	data[dlen++] = 0x80; /* set SE ID = 0x01 */
+	data[dlen++] = 0x01;
+	data[dlen++] = 0x01;
+
+	/* should put reference to pin here - for now, blank means no barrier */
+
+	/* write to record 1 in file */
+	sc_format_apdu (p15card->card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, 1, 4);
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
+	apdu.data = data;
+	r = sc_transmit_apdu (p15card->card, &apdu);
+	SC_TEST_RET(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
+	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+		return SC_ERROR_INTERNAL;
 
 	return (r);
 }
