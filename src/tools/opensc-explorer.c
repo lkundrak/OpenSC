@@ -799,7 +799,7 @@ static int do_cat(int argc, char **argv)
 			}
 		}
 	}
-	if (file->type != SC_FILE_TYPE_WORKING_EF &&
+	if (0 && file->type != SC_FILE_TYPE_WORKING_EF &&
 		!(file->type == SC_FILE_TYPE_DF && sfi)) {
 		printf("only working EFs may be read\n");
 		goto err;
