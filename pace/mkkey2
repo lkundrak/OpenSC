@@ -1,0 +1,19 @@
+#! /bin/sh
+
+# create dir 1100 with se file 4003
+opensc-tool -vvvv -s 00:e0:00:00:0d:62:0b:82:01:38:83:02:11:00:8d:02:40:03
+
+# CREATE SE File: ID=4003, MRL=0x11, NOR=0x04 with SAC (read access = NEVER)
+opensc-tool -vvvv -s 00:a4:00:00:02:11:00  -s 00:E0:00:00:17:62:15:82:05:0C:01:00:11:04:83:02:40:03:8C:08:7f:00:00:00:00:00:00:00
+
+# Create PUB EF, ID=BBBB, size=0200
+opensc-tool -vvvv -s 00:a4:00:00:02:11:00  -s 00:E0:00:00:11:62:0f:83:02:BB:BB:82:01:09:80:02:02:00:8d:02:40:03
+
+# Create a PRIVATE EF, ID=CCCC, size=0290
+opensc-tool -vvvv -s 00:a4:00:00:02:11:00  -s 00:E0:00:00:11:62:0f:83:02:CC:CC:82:01:09:80:02:02:90:8d:02:40:03
+
+# To generate RSA key pair, build MSE with 2 DST's
+opensc-tool -vvvv -s 00:a4:00:00:02:11:00  \
+	    	  -s 00:22:01:B6:0A:80:01:10:81:02:BB:BB:95:01:80 \
+                  -s 00:22:01:B6:0A:80:01:10:81:02:CC:CC:95:01:40 \
+		  -s 00:46:80:00:09:08:03:00:00:00:00:00:00:00 
