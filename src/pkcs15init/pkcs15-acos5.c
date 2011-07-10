@@ -102,8 +102,8 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	*p++ = 0x0c; /* fdb linear variable ef */
 	*p++ = 0x01; /* dcb, unused in acos5 */
 	*p++ = 0x00; /* must be 0 */
-	*p++ = 17; /* mrl: max record len */
-	*p++ = 1; /* nor: number of records */
+	*p++ = 0x11; /* mrl: max record len */
+	*p++ = 4; /* nor: number of records */
 
 	*p++ = 0x8c; /* allow everything */
 	*p++ = 0x08;
@@ -124,23 +124,25 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 		r = 0;
 	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
 
-	/* see section 4.2 */
-	dlen = 0;
-	data[dlen++] = 0x80; /* set SE ID = 0x01 */
-	data[dlen++] = 0x01;
-	data[dlen++] = 0x01;
+	if (0) {
+		/* see section 4.2 */
+		dlen = 0;
+		data[dlen++] = 0x80; /* set SE ID = 0x01 */
+		data[dlen++] = 0x01;
+		data[dlen++] = 0x01;
 
-	/* should put reference to pin here - for now, blank means no barrier */
+		/* should put reference to pin here - for now, blank means no barrier */
 
-	/* write to record 1 in file */
-	sc_format_apdu (p15card->card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, 1, 4);
-	apdu.lc = dlen;
-	apdu.datalen = dlen;
-	apdu.data = data;
-	r = sc_transmit_apdu (p15card->card, &apdu);
-	SC_TEST_RET(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
-	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
-		return SC_ERROR_INTERNAL;
+		/* write to record 1 in file */
+		sc_format_apdu (p15card->card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, 1, 4);
+		apdu.lc = dlen;
+		apdu.datalen = dlen;
+		apdu.data = data;
+		r = sc_transmit_apdu (p15card->card, &apdu);
+		SC_TEST_RET(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
+		if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+			return SC_ERROR_INTERNAL;
+	}
 
 	return (r);
 }
@@ -243,6 +245,8 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_pkcs15_obj
 	size_t		bytes, mod_len, exp_len, prv_len, pub_len;
 	int		r, algo;
 	struct sc_file *found = NULL;
+	u8 sec_attr[100], *p;
+	int sec_attr_len;
 
 	/* The caller is supposed to have chosen a key file path for us */
 	if (key_info->path.len == 0 || key_info->modulus_length == 0)
@@ -253,13 +257,23 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_pkcs15_obj
 	if (r < 0)
 		return r;
 
-	keyfile->size = key_info->modulus_length / 8 + 5;
+	/* private key has 5 CRT parts, each half of the modulus size */
+	keyfile->size = 5 + 5 * (key_info->modulus_length / 8 / 2);
 
 	if ((r = sc_pkcs15init_fixup_file(profile, p15card, keyfile)) < 0)
 		goto done;
 
 	r = sc_select_file (p15card->card, &keyfile->path, &found);
 	if (r == SC_ERROR_FILE_NOT_FOUND) {
+
+		p = sec_attr;
+		*p++ = 0x8d;
+		*p++ = 2;
+		*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+		*p++ = ACOS5_MAIN_SE_FILE & 0xff;
+		sec_attr_len = p - sec_attr;
+		sc_file_set_sec_attr (keyfile, sec_attr,  sec_attr_len);
+
 		r = sc_pkcs15init_create_file(profile, p15card, keyfile);
 		if (r >= 0)
 			r = sc_select_file (p15card->card, &keyfile->path, &found);
@@ -351,6 +365,8 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	int file_id;
 	sc_path_t *privpath;
 	int len;
+	u8 sec_attr[100], *p;
+	int sec_attr_len;
 	
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
@@ -369,8 +385,18 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	file->type = SC_FILE_TYPE_INTERNAL_EF;
 	file->ef_structure = SC_FILE_EF_TRANSPARENT;
 	file->id = ACOS5_TMP_PUBKEY;
-	file->size = 5 + 8 + 64; /* XXX */
+	file->size = 5 + 8 + key_info->modulus_length / 8;
 	file->status = SC_FILE_STATUS_CREATION;
+
+	p = sec_attr;
+	*p++ = 0x8d;
+	*p++ = 2;
+	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
+	sec_attr_len = p - sec_attr;
+	sc_file_set_sec_attr (file, sec_attr,  sec_attr_len);
+
+
 	r = sc_create_file(card, file);
 	if (r < 0 && r != SC_ERROR_FILE_ALREADY_EXISTS) 
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "can't make temporary pubkey file");
@@ -409,6 +435,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		}
 	}
 
+	/* note, this will make a type 0x7 key (private with CRT, capable of decipher) */
 	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0x46, 0x80, 0x00);
 	apdu.lc = dlen;
 	apdu.datalen = dlen;

@@ -1,0 +1,2206 @@
+Current directory is ~/OpenSC/src/tools/
+GNU gdb (Ubuntu/Linaro 7.2-1ubuntu11) 7.2
+Copyright (C) 2010 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "i686-linux-gnu".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /home/pace/OpenSC/src/tools/.libs/lt-pkcs15-init...done.
+(gdb) r --create-pkcs15 -vvvv
+Starting program: /home/pace/OpenSC/src/tools/.libs/lt-pkcs15-init --create-pkcs15 -vvvv
+[Thread debugging using libthread_db enabled]
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] sc.c:195:sc_detect_card_presence: called
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:361:pcsc_detect_card_presence: called
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:275:refresh_attributes: AseIIIeUSB 00 00 check
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:298:refresh_attributes: current  state: 0x00000020
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:299:refresh_attributes: previous state: 0x00000022
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:353:refresh_attributes: card present
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:366:pcsc_detect_card_presence: returning with: 1
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] sc.c:200:sc_detect_card_presence: returning with: 1
+Using reader with a card: AseIIIeUSB 00 00
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] sc.c:195:sc_detect_card_presence: called
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:361:pcsc_detect_card_presence: called
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:275:refresh_attributes: AseIIIeUSB 00 00 check
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:298:refresh_attributes: current  state: 0x00000020
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:299:refresh_attributes: previous state: 0x00000020
+0xb7b5d6c0 22:05:48.131 [pkcs15-init] reader-pcsc.c:353:refresh_attributes: card present
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:366:pcsc_detect_card_presence: returning with: 1
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] sc.c:200:sc_detect_card_presence: returning with: 1
+Connecting to card in reader AseIIIeUSB 00 00...
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:115:sc_connect_card: called
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:440:pcsc_connect: called
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:275:refresh_attributes: AseIIIeUSB 00 00 check
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:298:refresh_attributes: current  state: 0x00000020
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:299:refresh_attributes: previous state: 0x00000020
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:353:refresh_attributes: card present
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] reader-pcsc.c:469:pcsc_connect: Initial protocol: T=0
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:6e:00:ff:45:73:74:45:49:44:20:76:65:72:20:31:2e:30
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:94:00:ff:80:b1:fa:45:1f:03:45:73:74:45:49:44:20:76:65:72:20:31:2e:30:43
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:5e:11:ff:45:73:74:45:49:44:20:76:65:72:20:31:2e:30
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:de:18:ff:c0:80:b1:fe:45:1f:03:45:73:74:45:49:44:20:76:65:72:20:31:2e:30:2b
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:6e:00:00:45:73:74:45:49:44:20:76:65:72:20:31:2e:30
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:18:00:00:80:31:fe:45:45:73:74:45:49:44:20:76:65:72:20:31:2e:30:a8
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:18:00:00:80:31:fe:45:80:31:80:66:40:90:a4:56:1b:16:83:01:90:00:86
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:18:00:00:80:31:fe:45:80:31:80:66:40:90:a4:16:2a:00:83:01:90:00:e1
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:18:00:00:80:31:fe:45:80:31:80:66:40:90:a4:16:2a:00:83:0f:90:00:ef
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:ff:94:00:ff:80:b1:fe:45:1f:03:00:68:d2:76:00:00:28:ff:05:1e:31:80:00:90:00:23
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:ff:11:00:ff:80:b1:fe:45:1f:03:00:68:d2:76:00:00:28:ff:05:1e:31:80:00:90:00:a6
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:e2:00:ff:c1:10:31:fe:55:c8:02:9c
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.132 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:e9:00:ff:c1:10:31:fe:55:00:64:05:00:c8:02:31:80:00:47
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fb:98:00:ff:c1:10:31:fe:55:00:64:05:20:47:03:31:80:00:90:00:f3
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fc:98:00:ff:c1:10:31:fe:55:c8:03:49:6e:66:6f:63:61:6d:65:72:65:28
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:f4:98:00:ff:c1:10:31:fe:55:4d:34:63:76:b4
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:f2:18:00:ff:c1:0a:31:fe:55:c8:06:8a
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:d2:18:02:c1:0a:31:fe:58:c8:0d:51
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:95:15:40:20:68:01:02:00:00
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:15:40:FF:68:01:02:02:01
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:15:40:FF:68:01:02:02:04
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:85:40:20:68:01:01:05:01
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:94:40:FF:63:01:01:02:01
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:15:40:FF:63:01:01:02:01
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:64:02:01:01:02
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:62:01:01:00:00
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:62:01:02:01:04
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:62:04:01:01:05
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:95:15:40:ff:68:01:02:45:47
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.133 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E2:00:00:40:20:49:06
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E2:00:00:40:20:49:05
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E2:00:00:40:20:49:07
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:85:40:20:68:01:01:03:05
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:02:14:50
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:19:14:55:90:01:02:01:00:05:04:B0
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:32:15:00:06:80
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:32:15:00:06:95
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:19:14:59:01:01:0F:01:00:05:08:B0
+0xb7b5d6c0 22:05:48.134 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:19:14:55:90:01:01:01:00:05:08:B0
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:16:94:81:10:06:01:81:3F
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:16:94:81:10:06:01:81:2F
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:95:15:40:20:68:01:02:00:00
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:15:40:FF:68:01:02:02:01
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:15:40:FF:68:01:02:02:04
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:85:40:20:68:01:01:05:01
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:94:40:FF:63:01:01:02:01
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:15:40:FF:63:01:01:02:01
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:64:02:01:01:02
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:62:01:01:00:00
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:62:01:02:01:04
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:18:40:FF:62:04:01:01:05
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:95:15:40:ff:68:01:02:45:47
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E2:00:00:40:20:49:06
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E2:00:00:40:20:49:05
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E2:00:00:40:20:49:07
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:85:40:20:68:01:01:03:05
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.161 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:02:14:50
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:19:14:55:90:01:02:01:00:05:04:B0
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:32:15:00:06:80
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:32:15:00:06:95
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:19:14:59:01:01:0F:01:00:05:08:B0
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:19:14:55:90:01:01:01:00:05:08:B0
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:16:94:81:10:06:01:81:3F
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:16:94:81:10:06:01:81:2F
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:27:00:80:65:A2:04:01:01:37
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:27:00:80:65:A2:05:01:01:37
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:27:00:80:65:A2:0C:01:01:37
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:A7:00:40:14:80:65:A2:14:01:01:37
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:A7:00:40:18:80:65:A2:08:01:01:52
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:A7:00:40:18:80:65:A2:09:01:01:52
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:A7:00:40:18:80:65:A2:09:01:02:52
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:A7:00:40:18:80:65:A2:09:01:03:52
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7B:94:00:00:80:65:B0:83:01:01:74:83:00:90:00
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:6B:00:00:80:65:B0:83:01:01:74:83:00:90:00
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:6d:00:00:80:31:80:65:b0:83:01:02:90:83:00:90:00
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:6B:00:00:80:65:B0:83:01:03:74:83:00:90:00
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.186 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7A:94:00:00:80:65:A2:01:01:01:3D:72:D6:43
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:94:00:00:80:31:80:65:B0:83:01:01:90:83:00:90:00
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:95:00:00:80:31:80:65:B0:83:11:C0:A9:83:00
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:95:00:00:80:31:80:65:B0:83:11:C0:A9:83:00:90:00
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.216 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:95:00:00:80:31:80:65:B0:83:11:00:C8:83:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:95:00:00:80:31:80:65:B0:83:11:00:C8:83:00:90:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:9D:94:40:23:00:68:10:11:4D:69:6F:43:4F:53:00:90:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:9D:94:40:23:00:68:20:01:4D:69:6F:43:4F:53:00:90:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:FF:94:00:FF:80:B1:FE:45:1F:03:00:68:D2:76:00:00:28:FF:05:1E:31:80:00:90:00:23
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:6f:00:ff:00:68:d2:76:00:00:28:ff:05:1e:31:80:00:90:00
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:ff:11:00:ff:80:b1:fe:45:1f:03:00:68:d2:76:00:00:28:ff:05:1e:31:80:00:90:00:a6
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:FE:94:00:FF:80:B1:FA:45:1F:03:45:73:74:45:49:44:20
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:94:00:ff:80:b1:fa:45:1f:03:45:73:74:45:49:44:20:76:65:72:20:31:2e:30:43
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:6e:00:ff:45:73:74:45:49:44:20:76:65:72:20:31:2e:30
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:de:18:ff:c0:80:b1:fe:45:1f:03:45:73:74:45:49:44:20:76:65:72:20:31:2e:30:2b
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:5e:11:ff:45:73:74:45:49:44:20:76:65:72:20:31:2e:30
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:6e:00:00:45:73:74:45:49:44:20:76:65:72:20:31:2e:30
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:FE:18:00:00:80:31:FE:45:45:73:74:45:49:44:20:76:65:72:20:31:2E:30:A8
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:FE:18:00:00:80:31:FE:45:80:31:80:66:40:90:A4:56:1B:16:83:01:90:00:86
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.217 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:18:00:00:80:31:fe:45:80:31:80:66:40:90:a4:16:2a:00:83:01:90:00:e1
+0xb7b5d6c0 22:05:48.233 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fe:18:00:00:80:31:fe:45:80:31:80:66:40:90:a4:16:2a:00:83:0f:90:00:ef
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:d6:18:00:81:b1:80:7d:1f:03:80:51:00:61:10:30:8f
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:d6:18:00:81:b1:fe:7d:1f:03:41:53:45:37:35:35:01
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:B7:94:00:c0:24:31:fe:65:53:50:4b:32:33:90:00:b4
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:B7:94:00:81:31:fe:65:53:50:4b:32:33:90:00:d1
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:b7:18:00:c0:3e:31:fe:65:53:50:4b:32:34:90:00:25
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:BA:13:00:81:31:86:5D:00:64:05:0A:02:01:31:80:90:00:8B
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:BA:14:00:81:31:86:5D:00:64:05:14:02:02:31:80:90:00:91
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:BA:96:00:81:31:86:5D:00:64:05:60:02:03:31:80:90:00:66
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:BA:96:00:81:31:86:5D:00:64:05:7B:02:03:31:80:90:00:7D
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:BF:96:00:81:31:FE:5D:00:64:04:11:03:01:31:C0:73:F7:01:D0:00:90:00:7D
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:BF:B6:00:81:31:FE:5D:00:64:04:28:03:02:31:C0:73:F7:01:D0:00:90:00:67
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:fa:13:00:ff:81:31:80:45:00:31:c1:73:c0:01:00:00:90:00:b1
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:da:18:ff:81:b1:fe:75:1f:03:00:31:c5:73:c0:01:40:00:90:00:0c
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:E6:00:FF:81:31:FE:45:4A:43:4F:50:33:31:06
+0xb7b5d6c0 22:05:48.234 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.318 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.318 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:18:00:00:00:31:80:71:8E:64:77:E3:01:00:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:18:00:00:00:31:80:71:8E:64:77:E3:02:00:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:11:00:00:00:31:80:71:8E:64:77:E3:01:00:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:11:00:00:00:31:80:71:8E:64:77:E3:02:00:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7B:18:00:00:00:31:C0:64:77:E3:03:00:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:FB:11:00:00:81:31:FE:45:00:31:C0:64:77:E9:10:00:00:90:00:6A
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card-authentic.c:407:authentic_match_card: try to match card with ATR 3BBE1800004105100000000000000000009000
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:DD:18:00:81:31:FE:45:80:F9:A0:00:00:00:77:01:00:70:0A:90:00:8B
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card-authentic.c:410:authentic_match_card: card not matched
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card-iasecc.c:299:iasecc_match_card: iasecc_match_card(3BBE1800004105100000000000000000009000) called
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7F:96:00:00:00:31:B8:64:40:70:14:10:73:94:01:80:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:DD:18:00:81:31:FE:45:80:F9:A0:00:00:00:77:01:08:00:07:90:00:FE
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7D:13:00:00:4D:44:57:2D:49:41:53:2D:43:41:52:44:32
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:7F:18:00:00:00:31:B8:64:50:23:EC:C1:73:94:01:80:82:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card-iasecc.c:302:iasecc_match_card: card not matched
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:98:13:40:0A:A5:03:01:01:01:AD:13:11
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:98:94:40:0A:A5:03:01:01:01:AD:13:10
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.319 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:98:94:40:FF:A5:03:01:01:01:AD:13:10
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:65:00:00:D0:00:54:01:31
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:65:00:00:D0:00:54:01:32
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:95:40:FF:D0:00:54:01:31
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3B:95:95:40:FF:D0:00:54:01:32
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.353 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:ff:18:00:ff:81:31:fe:55:00:6b:02:09:02:00:01:01:01:44:53:44:10:31:80:92
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:843:match_atr_table: ignored - wrong length
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:829:match_atr_table: ATR     : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:840:match_atr_table: ATR try : 3b:be:18:00:00:41:05:10:00:00:00:00:00:00:00:00:00:90:00
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:224:sc_connect_card: card info name:'ACS ACOS5 card', type:16001, flags:0x0, max_send/recv_size:128/128
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:225:sc_connect_card: returning with: 0 (Success)
+Using card driver ACS ACOS5 card.
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] reader-pcsc.c:507:pcsc_lock: called
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] pkcs15-lib.c:297:sc_pkcs15init_bind: called
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:720:sc_card_ctl: called
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:730:sc_card_ctl: returning with: 0 (Success)
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f0050154946
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:48.354 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.357 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:48.357 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.357 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.357 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.357 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:48.357 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.363 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:48.363 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.363 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.363 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 15 .....P.
+======================================================================
+0xb7b5d6c0 22:05:48.364 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.367 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:48.367 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.367 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.367 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.367 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:48.367 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 15 88 01 15 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 21 84 00 8C 00 AB 00 90 00             ..`!........
+======================================================================
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x5015
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 49 46 .....IF
+======================================================================
+0xb7b5d6c0 22:05:48.373 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.378 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:48.378 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.378 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.456 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.456 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:48.456 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.461 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 49 46 88 01 06 8A 01 01 82 02 01 00 o...IF..........
+80 02 00 80 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:48.461 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.461 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.461 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x4946
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 128
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] card.c:422:sc_read_binary: called; 128 bytes at index 0
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 B0 00 00 80 .....
+======================================================================
+0xb7b5d6c0 22:05:48.462 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:48.482 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [  130 bytes] =====================================
+01 06 70 6B 63 73 31 35 00 00 00 00 00 00 00 00 ..pkcs15........
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+90 00                                           ..
+======================================================================
+0xb7b5d6c0 22:05:48.482 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:48.482 [pkcs15-init] iso7816.c:150:iso7816_read_binary: returning with: 128
+0xb7b5d6c0 22:05:48.483 [pkcs15-init] card.c:455:sc_read_binary: returning with: 128
+0xb7b5d6c0 22:05:48.483 [pkcs15-init] profile.c:327:sc_profile_load: called
+0xb7b5d6c0 22:05:48.483 [pkcs15-init] profile.c:357:sc_profile_load: Using profile directory '/usr/local/share/opensc'.
+0xb7b5d6c0 22:05:48.483 [pkcs15-init] profile.c:365:sc_profile_load: Trying profile file /usr/local/share/opensc/pkcs15.profile
+0xb7b5d6c0 22:05:48.484 [pkcs15-init] profile.c:370:sc_profile_load: profile /usr/local/share/opensc/pkcs15.profile loaded ok
+0xb7b5d6c0 22:05:48.484 [pkcs15-init] profile.c:380:sc_profile_load: returning with: 0 (Success)
+0xb7b5d6c0 22:05:48.484 [pkcs15-init] profile.c:327:sc_profile_load: called
+0xb7b5d6c0 22:05:48.484 [pkcs15-init] profile.c:357:sc_profile_load: Using profile directory '/usr/local/share/opensc'.
+0xb7b5d6c0 22:05:48.484 [pkcs15-init] profile.c:365:sc_profile_load: Trying profile file /usr/local/share/opensc/acos5.profile
+0xb7b5d6c0 22:05:48.485 [pkcs15-init] profile.c:370:sc_profile_load: profile /usr/local/share/opensc/acos5.profile loaded ok
+0xb7b5d6c0 22:05:48.486 [pkcs15-init] profile.c:380:sc_profile_load: returning with: 0 (Success)
+0xb7b5d6c0 22:05:48.486 [pkcs15-init] profile.c:392:sc_profile_finish: called
+0xb7b5d6c0 22:05:48.486 [pkcs15-init] profile.c:435:sc_profile_finish: returning with: 0 (Success)
+0xb7b5d6c0 22:05:48.486 [pkcs15-init] pkcs15-lib.c:379:sc_pkcs15init_bind: returning with: 0 (Success)
+About to create PKCS #15 meta structure.
+New Security Officer PIN (Optional - press return for no PIN).
+Please enter Security Officer PIN: 
+
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] pkcs15-lib.c:707:sc_pkcs15init_add_app: called
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:50.036 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.051 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.051 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.051 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.051 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.051 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.052 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.057 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:50.057 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.057 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.057 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.057 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] card.c:383:sc_create_file: called; type=2, path=3f00501d, size=5000
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   22 bytes] =====================================
+00 E0 00 00 11 62 0F 80 02 13 88 82 01 38 83 02 .....b.......8..
+50 1D 8D 02 60 04                               P...`.
+======================================================================
+0xb7b5d6c0 22:05:50.058 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] card.c:393:sc_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:50.412 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] iso7816.c:480:iso7816_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.425 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:50.426 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.435 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.435 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.435 [pkcs15-init] iso7816.c:480:iso7816_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.435 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.435 [pkcs15-init] card.c:383:sc_create_file: called; type=2, path=3f00501d6004, size=32
+0xb7b5d6c0 22:05:50.435 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.436 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.436 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.436 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   32 bytes] =====================================
+00 E0 00 00 1B 62 19 80 02 00 20 82 05 0C 01 00 .....b.... .....
+11 04 8C 08 7F 00 00 00 00 00 00 00 83 02 60 04 ..............`.
+======================================================================
+0xb7b5d6c0 22:05:50.436 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.748 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] card.c:393:sc_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] card.c:720:sc_card_ctl: called
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+80 14 00 00 06 .....
+======================================================================
+0xb7b5d6c0 22:05:50.749 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.752 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    8 bytes] =====================================
+06 BF 82 18 68 51 90 00 ....hQ..
+======================================================================
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] card.c:730:sc_card_ctl: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] pkcs15-lib.c:2572:sc_pkcs15init_add_object: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] pkcs15-lib.c:2573:sc_pkcs15init_add_object: add object (nil) to DF of type 8
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] pkcs15-lib.c:2594:sc_pkcs15init_add_object: Add nothing; just instantiate this directory file
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] pkcs15-lib.c:2523:sc_pkcs15init_update_any_df: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] profile.c:616:sc_profile_get_file_by_path: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] profile.c:620:sc_profile_get_file_by_path: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] pkcs15-lib.c:3310:sc_pkcs15init_update_file: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] pkcs15-lib.c:3311:sc_pkcs15init_update_file: path:3f00501d4411; datalen:0
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d4411
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:50.753 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.768 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.768 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.768 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.768 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.768 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.768 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:50.774 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.784 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.784 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.784 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.784 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.784 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.784 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 44 11 .....D.
+======================================================================
+0xb7b5d6c0 22:05:50.790 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+6A 82 j.
+======================================================================
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] iso7816.c:103:iso7816_check_sw: File not found
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] iso7816.c:485:iso7816_select_file: returning with: -1201 (File not found)
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] card.c:597:sc_select_file: returning with: -1201 (File not found)
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] pkcs15-lib.c:3273:sc_pkcs15init_create_file: called
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] pkcs15-lib.c:3274:sc_pkcs15init_create_file: create file '3f00501d4411'
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] pkcs15-lib.c:3224:do_select_parent: called
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:50.810 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.820 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.820 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.820 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.820 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.820 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.820 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:50.830 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.840 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.840 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.840 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.840 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.840 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.840 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.846 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] pkcs15-lib.c:3261:do_select_parent: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] pkcs15-lib.c:3179:sc_pkcs15init_authenticate: called
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] pkcs15-lib.c:3180:sc_pkcs15init_authenticate: path '3f00501d', op=3
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:50.847 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.856 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.856 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.856 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.856 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.856 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.856 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:50.862 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.872 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:50.872 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.872 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.872 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.872 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:50.872 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:50.878 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:50.878 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.878 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:50.878 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:50.878 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:50.878 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3191:sc_pkcs15init_authenticate: acl (nil)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3212:sc_pkcs15init_authenticate: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3438:sc_pkcs15init_fixup_file: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:1641:sc_pkcs15init_get_pin_reference: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:1651:sc_pkcs15init_get_pin_reference: found 0 auth objects; looking for AUTH object(auth_method:16,reference:0)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:1707:sc_pkcs15init_get_pin_reference: returning with: 3
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:1641:sc_pkcs15init_get_pin_reference: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:1651:sc_pkcs15init_get_pin_reference: found 0 auth objects; looking for AUTH object(auth_method:16,reference:2)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:1707:sc_pkcs15init_get_pin_reference: returning with: 1
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3474:sc_pkcs15init_fixup_file: so_acl(method:1,ref:3), user_acl(method:1,ref:1)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3374:sc_pkcs15init_fixup_acls: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3422:sc_pkcs15init_fixup_acls: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] pkcs15-lib.c:3478:sc_pkcs15init_fixup_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] card.c:720:sc_card_ctl: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] card.c:730:sc_card_ctl: returning with: 0 (Success)
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] card.c:383:sc_create_file: called; type=2, path=3f00501d4411, size=255
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   18 bytes] =====================================
+00 E0 00 00 0D 62 0B 80 02 00 FF 82 01 01 83 02 .....b..........
+44 11                                           D.
+======================================================================
+0xb7b5d6c0 22:05:50.879 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.189 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:51.189 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.189 [pkcs15-init] card.c:393:sc_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.189 [pkcs15-init] pkcs15-lib.c:3296:sc_pkcs15init_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.189 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d4411
+0xb7b5d6c0 22:05:51.189 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.190 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.190 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.190 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.190 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.205 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.205 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.205 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.205 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.205 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.205 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.211 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.221 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.221 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.221 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.221 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.221 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.221 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.227 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.228 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 44 11 .....D.
+======================================================================
+0xb7b5d6c0 22:05:51.228 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.241 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:51.241 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.241 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.241 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.241 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:51.241 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 44 11 88 01 11 8A 01 01 82 02 01 00 o...D...........
+80 02 00 FF 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x4411
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 255
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] pkcs15-lib.c:3179:sc_pkcs15init_authenticate: called
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] pkcs15-lib.c:3180:sc_pkcs15init_authenticate: path '3f00501d4411', op=23
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d4411
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.247 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.263 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.263 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.263 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.263 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.263 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.263 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.269 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.279 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.279 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.279 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.279 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.279 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.279 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.285 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.286 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.286 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.286 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.286 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 44 11 .....D.
+======================================================================
+0xb7b5d6c0 22:05:51.286 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.295 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:51.295 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.295 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.295 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.295 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:51.295 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 44 11 88 01 11 8A 01 01 82 02 01 00 o...D...........
+80 02 00 FF 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x4411
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 255
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] pkcs15-lib.c:3191:sc_pkcs15init_authenticate: acl (nil)
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] pkcs15-lib.c:3212:sc_pkcs15init_authenticate: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] pkcs15-lib.c:2497:sc_pkcs15init_update_odf: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] pkcs15-lib.c:3310:sc_pkcs15init_update_file: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] pkcs15-lib.c:3311:sc_pkcs15init_update_file: path:3f00501d5031; datalen:12
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d5031
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.301 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.317 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.317 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.317 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.317 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.317 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.317 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.323 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.324 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.324 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.324 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.324 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.324 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.333 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.333 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.333 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.333 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.333 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.333 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 31 .....P1
+======================================================================
+0xb7b5d6c0 22:05:51.339 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+6A 82 j.
+======================================================================
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] iso7816.c:103:iso7816_check_sw: File not found
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] iso7816.c:485:iso7816_select_file: returning with: -1201 (File not found)
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] card.c:597:sc_select_file: returning with: -1201 (File not found)
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] pkcs15-lib.c:3273:sc_pkcs15init_create_file: called
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] pkcs15-lib.c:3274:sc_pkcs15init_create_file: create file '3f00501d5031'
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] pkcs15-lib.c:3224:do_select_parent: called
+0xb7b5d6c0 22:05:51.360 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:51.361 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.361 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.361 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.361 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.361 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.370 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.370 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.370 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.370 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.370 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.370 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.376 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.377 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.377 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.377 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.377 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.386 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.386 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.386 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.386 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.386 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.386 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.392 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] pkcs15-lib.c:3261:do_select_parent: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] pkcs15-lib.c:3179:sc_pkcs15init_authenticate: called
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] pkcs15-lib.c:3180:sc_pkcs15init_authenticate: path '3f00501d', op=3
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.393 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.402 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.402 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.402 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.402 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.402 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.402 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.408 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.409 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.409 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.409 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.409 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.409 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.409 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.418 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.418 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.418 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.418 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.418 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.418 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.424 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3191:sc_pkcs15init_authenticate: acl (nil)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3212:sc_pkcs15init_authenticate: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3438:sc_pkcs15init_fixup_file: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:1641:sc_pkcs15init_get_pin_reference: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:1651:sc_pkcs15init_get_pin_reference: found 0 auth objects; looking for AUTH object(auth_method:16,reference:0)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:1707:sc_pkcs15init_get_pin_reference: returning with: 3
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:1641:sc_pkcs15init_get_pin_reference: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:1651:sc_pkcs15init_get_pin_reference: found 0 auth objects; looking for AUTH object(auth_method:16,reference:2)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:1707:sc_pkcs15init_get_pin_reference: returning with: 1
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3474:sc_pkcs15init_fixup_file: so_acl(method:1,ref:3), user_acl(method:1,ref:1)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3374:sc_pkcs15init_fixup_acls: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3422:sc_pkcs15init_fixup_acls: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] pkcs15-lib.c:3478:sc_pkcs15init_fixup_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] card.c:720:sc_card_ctl: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] card.c:730:sc_card_ctl: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] card.c:383:sc_create_file: called; type=2, path=3f00501d5031, size=255
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   18 bytes] =====================================
+00 E0 00 00 0D 62 0B 80 02 00 FF 82 01 01 83 02 .....b..........
+50 31                                           P1
+======================================================================
+0xb7b5d6c0 22:05:51.425 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] card.c:393:sc_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] pkcs15-lib.c:3296:sc_pkcs15init_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d5031
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.695 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.714 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.714 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.714 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.714 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.714 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.714 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.720 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.721 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.721 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.721 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.721 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.721 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.730 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.730 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.730 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.730 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.730 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.730 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.736 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.737 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.737 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.737 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.737 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 31 .....P1
+======================================================================
+0xb7b5d6c0 22:05:51.737 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.746 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:51.746 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.746 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.746 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.746 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:51.746 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 50 31 88 01 11 8A 01 01 82 02 01 00 o...P1..........
+80 02 00 FF 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x5031
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 255
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] pkcs15-lib.c:3179:sc_pkcs15init_authenticate: called
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] pkcs15-lib.c:3180:sc_pkcs15init_authenticate: path '3f00501d5031', op=23
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d5031
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.752 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.768 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.768 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.768 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.768 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.768 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.768 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.774 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.775 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.775 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.775 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.775 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.775 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:51.775 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.784 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.784 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.784 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.784 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.784 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.784 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 31 .....P1
+======================================================================
+0xb7b5d6c0 22:05:51.790 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.800 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:51.800 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.800 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.800 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.800 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:51.800 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 50 31 88 01 11 8A 01 01 82 02 01 00 o...P1..........
+80 02 00 FF 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x5031
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 255
+0xb7b5d6c0 22:05:51.806 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] pkcs15-lib.c:3191:sc_pkcs15init_authenticate: acl (nil)
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] pkcs15-lib.c:3212:sc_pkcs15init_authenticate: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] card.c:508:sc_update_binary: called; 12 bytes at index 0
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   17 bytes] =====================================
+00 D6 00 00 0C A8 0A 30 08 04 06 3F 00 50 1D 44 .......0...?.P.D
+11                                              .
+======================================================================
+0xb7b5d6c0 22:05:51.807 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.894 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] iso7816.c:309:iso7816_update_binary: returning with: 12
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] card.c:541:sc_update_binary: returning with: 12
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] pkcs15-lib.c:2504:sc_pkcs15init_update_odf: returning with: 12
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] pkcs15-lib.c:2558:sc_pkcs15init_update_any_df: returning with: 12
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] pkcs15-lib.c:2614:sc_pkcs15init_add_object: returning with: 12
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] pkcs15-lib.c:2367:sc_pkcs15init_update_dir: called
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] dir.c:141:sc_enum_apps: called
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f002f00
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.895 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.910 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.910 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.910 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.910 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.910 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.910 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.916 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.917 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.917 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.917 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.917 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 2F 00 ...../.
+======================================================================
+0xb7b5d6c0 22:05:51.917 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.920 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:51.920 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.920 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.920 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.920 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:51.920 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.926 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 2F 00 88 01 00 8A 01 01 82 02 01 00 o.../...........
+80 02 00 80 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:51.926 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.926 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.926 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x2F00
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 128
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] card.c:422:sc_read_binary: called; 128 bytes at index 0
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 B0 00 00 80 .....
+======================================================================
+0xb7b5d6c0 22:05:51.927 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [  130 bytes] =====================================
+61 1B 4F 0C A0 00 00 00 63 50 4B 43 53 2D 31 35 a.O.....cPKCS-15
+50 05 41 43 4F 53 35 51 04 3F 00 50 19 61 1B 4F P.ACOS5Q.?.P.a.O
+0C A0 00 00 00 63 50 4B 43 53 2D 31 35 50 05 41 .....cPKCS-15P.A
+43 4F 53 35 51 04 3F 00 50 1B 61 1B 4F 0C A0 00 COS5Q.?.P.a.O...
+00 00 63 50 4B 43 53 2D 31 35 50 05 41 43 4F 53 ..cPKCS-15P.ACOS
+35 51 04 3F 00 50 1A 61 1B 4F 0C A0 00 00 00 63 5Q.?.P.a.O.....c
+50 4B 43 53 2D 31 35 50 05 41 43 4F 53 35 51 04 PKCS-15P.ACOS5Q.
+3F 00 50 1C 00 00 00 00 00 00 00 00 00 00 00 00 ?.P.............
+90 00                                           ..
+======================================================================
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] iso7816.c:150:iso7816_read_binary: returning with: 128
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] card.c:455:sc_read_binary: returning with: 128
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] dir.c:229:sc_enum_apps: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f002f00
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:51.947 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.951 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:51.951 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.951 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.951 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.951 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:51.951 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 2F 00 ...../.
+======================================================================
+0xb7b5d6c0 22:05:51.957 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.961 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:51.961 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.961 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.961 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.961 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:51.961 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 2F 00 88 01 00 8A 01 01 82 02 01 00 o.../...........
+80 02 00 80 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x2F00
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 128
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:51.967 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] card.c:508:sc_update_binary: called; 145 bytes at index 0
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] card.c:508:sc_update_binary: called; 128 bytes at index 0
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [  133 bytes] =====================================
+00 D6 00 00 80 61 1B 4F 0C A0 00 00 00 63 50 4B .....a.O.....cPK
+43 53 2D 31 35 50 05 41 43 4F 53 35 51 04 3F 00 CS-15P.ACOS5Q.?.
+50 1B 61 1B 4F 0C A0 00 00 00 63 50 4B 43 53 2D P.a.O.....cPKCS-
+31 35 50 05 41 43 4F 53 35 51 04 3F 00 50 1A 61 15P.ACOS5Q.?.P.a
+1B 4F 0C A0 00 00 00 63 50 4B 43 53 2D 31 35 50 .O.....cPKCS-15P
+05 41 43 4F 53 35 51 04 3F 00 50 1C 61 1B 4F 0C .ACOS5Q.?.P.a.O.
+A0 00 00 00 63 50 4B 43 53 2D 31 35 50 05 41 43 ....cPKCS-15P.AC
+4F 53 35 51 04 3F 00 50 19 61 1B 4F 0C A0 00 00 OS5Q.?.P.a.O....
+00 63 50 4B 43                                  .cPKC
+======================================================================
+0xb7b5d6c0 22:05:51.968 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] iso7816.c:309:iso7816_update_binary: returning with: 128
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] card.c:541:sc_update_binary: returning with: 128
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] card.c:508:sc_update_binary: called; 17 bytes at index 128
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   22 bytes] =====================================
+00 D6 00 80 11 53 2D 31 35 50 05 41 43 4F 53 35 .....S-15P.ACOS5
+51 04 3F 00 50 1D                               Q.?.P.
+======================================================================
+0xb7b5d6c0 22:05:52.115 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+62 82 b.
+======================================================================
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] iso7816.c:103:iso7816_check_sw: End of file/record reached before reading Le bytes
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] iso7816.c:308:iso7816_update_binary: Card returned error: -1219 (End of file/record reached before reading Le bytes)
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] card.c:541:sc_update_binary: returning with: -1219 (End of file/record reached before reading Le bytes)
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] card.c:525:sc_update_binary: sc_update_binary() failed: -1219 (End of file/record reached before reading Le bytes)
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] dir.c:313:update_transparent: Unable to update EF(DIR): -1219 (End of file/record reached before reading Le bytes)
+0xb7b5d6c0 22:05:52.122 [pkcs15-init] pkcs15-lib.c:2414:sc_pkcs15init_update_dir: returning with: -1219 (End of file/record reached before reading Le bytes)
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] pkcs15-lib.c:3310:sc_pkcs15init_update_file: called
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] pkcs15-lib.c:3311:sc_pkcs15init_update_file: path:3f00501d4946; datalen:128
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d4946
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:52.123 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.126 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.126 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.126 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.126 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.126 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.126 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.132 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:52.133 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.133 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.133 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.133 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:52.133 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.142 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.142 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.142 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.142 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.142 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.142 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.148 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:52.148 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.148 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.148 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.148 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 49 46 .....IF
+======================================================================
+0xb7b5d6c0 22:05:52.149 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+6A 82 j.
+======================================================================
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] iso7816.c:103:iso7816_check_sw: File not found
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] iso7816.c:485:iso7816_select_file: returning with: -1201 (File not found)
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] card.c:597:sc_select_file: returning with: -1201 (File not found)
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] pkcs15-lib.c:3273:sc_pkcs15init_create_file: called
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] pkcs15-lib.c:3274:sc_pkcs15init_create_file: create file '3f00501d4946'
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] pkcs15-lib.c:3224:do_select_parent: called
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:52.169 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.179 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.179 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.179 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.179 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.179 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.179 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:52.185 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.186 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.186 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.186 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:52.186 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.195 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.195 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.195 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.195 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.195 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.195 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] pkcs15-lib.c:3261:do_select_parent: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] pkcs15-lib.c:3179:sc_pkcs15init_authenticate: called
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] pkcs15-lib.c:3180:sc_pkcs15init_authenticate: path '3f00501d', op=3
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.201 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:52.202 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.211 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.211 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.211 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.211 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.211 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.211 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.217 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:52.217 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.217 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.217 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.217 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:52.217 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:52.218 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.227 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.227 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.227 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.227 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.227 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.227 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.233 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:52.233 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.233 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.233 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.233 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] pkcs15-lib.c:3191:sc_pkcs15init_authenticate: acl (nil)
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] pkcs15-lib.c:3212:sc_pkcs15init_authenticate: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] pkcs15-lib.c:3438:sc_pkcs15init_fixup_file: called
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] pkcs15-lib.c:3452:sc_pkcs15init_fixup_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] card.c:720:sc_card_ctl: called
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] card.c:730:sc_card_ctl: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] card.c:383:sc_create_file: called; type=2, path=3f00501d4946, size=128
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [   18 bytes] =====================================
+00 E0 00 00 0D 62 0B 80 02 00 80 82 01 01 83 02 .....b..........
+49 46                                           IF
+======================================================================
+0xb7b5d6c0 22:05:52.234 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] card.c:393:sc_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] pkcs15-lib.c:3296:sc_pkcs15init_create_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d4946
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:52.546 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.565 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.565 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.565 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.565 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.565 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.565 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:52.571 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.581 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.581 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.581 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.581 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.581 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.581 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.587 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:52.587 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.587 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.587 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.587 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 49 46 .....IF
+======================================================================
+0xb7b5d6c0 22:05:52.588 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.597 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:52.597 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.597 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.597 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.597 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:52.597 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 49 46 88 01 06 8A 01 01 82 02 01 00 o...IF..........
+80 02 00 80 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x4946
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 128
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.603 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] pkcs15-lib.c:3179:sc_pkcs15init_authenticate: called
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] pkcs15-lib.c:3180:sc_pkcs15init_authenticate: path '3f00501d4946', op=23
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] card.c:571:sc_select_file: called; type=2, path=3f00501d4946
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 3F 00 .....?.
+======================================================================
+0xb7b5d6c0 22:05:52.604 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.619 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.619 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.619 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.619 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.619 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.619 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 3F 00 88 01 00 8A 01 01 82 02 3F FF o...?.........?.
+8D 02 00 00 84 00 8C 00 AB 00 90 00             ............
+======================================================================
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x3F00
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 7
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 50 1D .....P.
+======================================================================
+0xb7b5d6c0 22:05:52.625 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.635 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 1A a.
+======================================================================
+0xb7b5d6c0 22:05:52.635 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.635 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.635 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.635 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 1A .....
+======================================================================
+0xb7b5d6c0 22:05:52.635 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   28 bytes] =====================================
+6F 18 83 02 50 1D 88 01 1D 8A 01 01 82 02 38 00 o...P.........8.
+8D 02 60 04 84 00 8C 00 AB 00 90 00             ..`.........
+======================================================================
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x501D
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: DF
+0xb7b5d6c0 22:05:52.641 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 0
+0xb7b5d6c0 22:05:52.642 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.642 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.642 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.642 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    7 bytes] =====================================
+00 A4 00 00 02 49 46 .....IF
+======================================================================
+0xb7b5d6c0 22:05:52.642 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.651 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+61 18 a.
+======================================================================
+0xb7b5d6c0 22:05:52.651 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.651 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.651 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.651 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [    5 bytes] =====================================
+00 C0 00 00 18 .....
+======================================================================
+0xb7b5d6c0 22:05:52.651 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [   26 bytes] =====================================
+6F 16 83 02 49 46 88 01 06 8A 01 01 82 02 01 00 o...IF..........
+80 02 00 80 8C 00 AB 00 90 00                   ..........
+======================================================================
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] iso7816.c:319:iso7816_process_fci: processing FCI bytes
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] iso7816.c:324:iso7816_process_fci:   file identifier: 0x4946
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] iso7816.c:331:iso7816_process_fci:   bytes in file: 128
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] iso7816.c:350:iso7816_process_fci:   shareable: no
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] iso7816.c:370:iso7816_process_fci:   type: working EF
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] iso7816.c:372:iso7816_process_fci:   EF structure: 1
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] card.c:597:sc_select_file: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] pkcs15-lib.c:3191:sc_pkcs15init_authenticate: acl (nil)
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] pkcs15-lib.c:3212:sc_pkcs15init_authenticate: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] card.c:508:sc_update_binary: called; 128 bytes at index 0
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] apdu.c:525:sc_transmit_apdu: called
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] card.c:292:sc_lock: called
+0xb7b5d6c0 22:05:52.657 [pkcs15-init] reader-pcsc.c:241:pcsc_transmit: reader 'AseIIIeUSB 00 00'
+0xb7b5d6c0 22:05:52.658 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Outgoing APDU data [  133 bytes] =====================================
+00 D6 00 00 80 01 06 70 6B 63 73 31 35 00 00 00 .......pkcs15...
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+00 00 00 00 00                                  .....
+======================================================================
+0xb7b5d6c0 22:05:52.658 [pkcs15-init] reader-pcsc.c:174:pcsc_internal_transmit: called
+0xb7b5d6c0 22:05:52.803 [pkcs15-init] apdu.c:184:sc_apdu_log: 
+Incoming APDU data [    2 bytes] =====================================
+90 00 ..
+======================================================================
+0xb7b5d6c0 22:05:52.803 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.803 [pkcs15-init] iso7816.c:309:iso7816_update_binary: returning with: 128
+0xb7b5d6c0 22:05:52.804 [pkcs15-init] card.c:541:sc_update_binary: returning with: 128
+0xb7b5d6c0 22:05:52.804 [pkcs15-init] pkcs15-lib.c:850:sc_pkcs15init_add_app: returning with: -1219 (End of file/record reached before reading Le bytes)
+Failed to create PKCS #15 meta structure: End of file/record reached before reading Le bytes
+0xb7b5d6c0 22:05:52.804 [pkcs15-init] card.c:330:sc_unlock: called
+0xb7b5d6c0 22:05:52.804 [pkcs15-init] reader-pcsc.c:544:pcsc_unlock: called
+0xb7b5d6c0 22:05:52.806 [pkcs15-init] card.c:242:sc_disconnect_card: called
+0xb7b5d6c0 22:05:52.806 [pkcs15-init] reader-pcsc.c:494:pcsc_disconnect: called
+0xb7b5d6c0 22:05:52.955 [pkcs15-init] card.c:258:sc_disconnect_card: returning with: 0 (Success)
+0xb7b5d6c0 22:05:52.956 [pkcs15-init] ctx.c:737:sc_release_context: called
+0xb7b5d6c0 22:05:52.956 [pkcs15-init] reader-pcsc.c:732:pcsc_finish: called
+
+Program exited with code 01.
+(gdb) 
