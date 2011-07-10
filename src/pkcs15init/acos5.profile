@@ -182,7 +182,13 @@ filesystem {
     	        file-id   = 4B11;	
     	        acl       = CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
             }
-            
+
+            EF template-hw-public-key {
+                type      = internal-ef;
+    	        file-id   = 5b11;	
+    	        acl       = CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+            }
+
             EF template-public-key {
                 structure = transparent;
                 file-id	  = 5511;

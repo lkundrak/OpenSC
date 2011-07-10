@@ -188,6 +188,7 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 		return SC_ERROR_INTERNAL;
 
 	/* card exponent is little endian */
+	/* TODO: use sc_mem_reverse */
 	memset (exponent_for_card, 0, sizeof exponent_for_card);
 	card_idx = stkey->exponent_len - 1;
 	for (i = 0; i < stkey->exponent_len; i++) {
