@@ -426,15 +426,6 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	dlen = 0;
 	data[dlen++] = key_info->modulus_length / 8 / 16;
 
-	if (1) {
-		/* little endian 8 byte exponent */
-		uint32_t val = 3, i;
-		for (i = 0; i < 8; i++) {
-			data[dlen++] = val & 0xff;
-			val >>= 8;
-		}
-	}
-
 	/* this will make a type 0x7 key (private with CRT, capable of decipher) */
 	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0x46, 0x80, 0x00);
 	apdu.lc = dlen;
