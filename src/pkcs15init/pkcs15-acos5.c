@@ -347,8 +347,6 @@ set_dst (sc_card_t *card, int file_id, int qual_byte)
 	return (0);
 }
 
-#define ACOS5_TMP_PUBKEY 0x9ace
-
 static int
 acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		struct sc_pkcs15_object *object, 
@@ -357,17 +355,20 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	struct sc_context *ctx = p15card->card->ctx;
 	struct sc_card *card = p15card->card;
 	struct sc_pkcs15_prkey_info *key_info = (struct sc_pkcs15_prkey_info *)object->data;
-	struct sc_file *file = NULL;
+	struct sc_file *prkey_file = NULL, *pukey_file = NULL;
 	int r;
 	int dlen;
 	u8 data[50];
 	sc_apdu_t apdu;
-	int file_id;
-	sc_path_t *privpath;
+	int prkey_file_id, pukey_file_id;
+	sc_path_t *prkey_path, *pukey_path;
 	int len;
 	u8 sec_attr[100], *p;
 	int sec_attr_len;
-	
+	int pukey_raw_size;
+	u8 pukey_raw[5 + 8 + 2048 / 8];
+	u8 *exponent_raw;
+
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
 	/* Check that the card supports the requested modulus length */
@@ -377,16 +378,24 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "store key with ID:%s and path:%s", 
 			sc_pkcs15_print_id(&key_info->id), sc_print_path(&key_info->path));
 
-	file = sc_file_new ();
-	file->path.len = p15card->app->path.len;
-	memcpy (file->path.value, p15card->app->path.value, 
-		p15card->app->path.len);
-	sc_append_file_id (&file->path, ACOS5_TMP_PUBKEY);
-	file->type = SC_FILE_TYPE_INTERNAL_EF;
-	file->ef_structure = SC_FILE_EF_TRANSPARENT;
-	file->id = ACOS5_TMP_PUBKEY;
-	file->size = 5 + 8 + key_info->modulus_length / 8;
-	file->status = SC_FILE_STATUS_CREATION;
+	/* extract the file_id from the given private key file */
+	prkey_path = &key_info->path;
+	len = prkey_path->len;
+	prkey_file_id = (prkey_path->value[len - 2] << 8) | prkey_path->value[len - 1];
+
+	/* make public key path, copying low byte of file id from private key */
+	if (sc_profile_get_file (profile, "template-hw-public-key", &pukey_file) < 0) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL, "template-hw-public-key missing from profile");
+		return (SC_ERROR_NOT_SUPPORTED);
+	}
+	pukey_path = &pukey_file->path;
+	len = pukey_path->len;
+	pukey_path->value[len - 1] = prkey_file_id & 0xff;
+	pukey_file_id = (pukey_path->value[len - 2] << 8) | pukey_path->value[len - 1];
+	
+	/* make the public key file */
+	pukey_raw_size = 5 + 8 + key_info->modulus_length / 8;
+	pukey_file->size = pukey_raw_size;
 
 	p = sec_attr;
 	*p++ = 0x8d;
@@ -394,33 +403,24 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
 	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
 	sec_attr_len = p - sec_attr;
-	sc_file_set_sec_attr (file, sec_attr,  sec_attr_len);
+	sc_file_set_sec_attr (pukey_file, sec_attr,  sec_attr_len);
 
-
-	r = sc_create_file(card, file);
+	r = sc_create_file(card, pukey_file);
 	if (r < 0 && r != SC_ERROR_FILE_ALREADY_EXISTS) 
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "can't make temporary pubkey file");
-	sc_file_free (file);
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "can't make pubkey file");
 
-	r = sc_select_file(card, &key_info->path, &file);
+	/* now set up for telling the card to generate the new key pair */
+	r = sc_select_file(card, &key_info->path, &prkey_file);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot store key: select key file failed");
 	
-	r = sc_pkcs15init_authenticate(profile, p15card, file, SC_AC_OP_GENERATE);
+	r = sc_pkcs15init_authenticate(profile, p15card, prkey_file, SC_AC_OP_GENERATE);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "No authorisation to generate private key");
 
-	if (0) {
-		r = clear_mse (card);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't clear_mse");	
-	}
-
-	privpath = &key_info->path;
-	len = privpath->len;
-	file_id = (privpath->value[len - 2] << 8) | privpath->value[len - 1];
-
-	r = set_dst (card, file_id, 0x40);
+	/* dst means Digital Signature Template */
+	r = set_dst (card, prkey_file_id, 0x40);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for priv key");
 
-	r = set_dst (card, ACOS5_TMP_PUBKEY, 0x80);
+	r = set_dst (card, pukey_file_id, 0x80);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for pub key");
 
 	dlen = 0;
@@ -435,7 +435,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		}
 	}
 
-	/* note, this will make a type 0x7 key (private with CRT, capable of decipher) */
+	/* this will make a type 0x7 key (private with CRT, capable of decipher) */
 	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0x46, 0x80, 0x00);
 	apdu.lc = dlen;
 	apdu.datalen = dlen;
@@ -446,10 +446,45 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
 	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "generate key failed");
 
-	if (file) 
-		sc_file_free(file);
+	/* now read out and return the new public key */
+	r = sc_select_file(card, pukey_path, NULL);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error selecting new public key");
 
-	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, r);
+	if (pukey_raw_size > sizeof pukey_raw)
+		return SC_ERROR_INTERNAL;
+	len = sc_read_binary (card, 0, pukey_raw, pukey_raw_size, 0);
+	if (len != pukey_raw_size) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL, "error reading raw public key");
+		return SC_ERROR_INTERNAL;
+	}
+	
+	pubkey->algorithm = SC_ALGORITHM_RSA;
+
+	/* data is 5 bytes header, 8 bytes exponent (little endian), modulus */
+	/* first 8 bytes of pubkey_raw are little endian exponent */
+	exponent_raw = pukey_raw + 5;
+	for (len = 8; len >= 1; len--) {
+		if (exponent_raw[len - 1])
+			break;
+	}
+	if ((p = malloc (len)) == NULL)
+		return SC_ERROR_OUT_OF_MEMORY;
+	memcpy (p, exponent_raw, len);
+	sc_mem_reverse (p, len);
+	pubkey->u.rsa.exponent.len = len;
+	pubkey->u.rsa.exponent.data = p;
+
+	len = key_info->modulus_length / 8;
+	if ((p = malloc (len)) == NULL)
+		return SC_ERROR_OUT_OF_MEMORY;
+	memcpy (p, pukey_raw + 5 + 8, len);
+	pubkey->u.rsa.modulus.len = len;
+	pubkey->u.rsa.modulus.data = p;
+
+	sc_file_free (prkey_file);
+	sc_file_free (pukey_file);
+
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, 0);
 }
 
 
