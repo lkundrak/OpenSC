@@ -1,0 +1,21 @@
+#! /bin/sh
+
+dir=13
+echo ${dir}
+# create dir ${dir}00 with se file 6004
+opensc-tool -vvvv -s 00:e0:00:00:11:62:0f:80:02:13:88:82:01:38:83:02:${dir}:00:8d:02:60:04
+
+# CREATE SE File: ID=6004, MRL=0x11, NOR=0x04 with SAC (read access = NEVER)
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00 -s 00:E0:00:00:1b:62:19:80:02:00:20:82:05:0C:01:00:11:04:8C:08:7f:00:00:00:00:00:00:00:83:02:60:04
+
+# Create a PRIVATE EF, ID=CCCC, size=0290 (need 165 bytes for 512 bit key)
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00  -s 00:E0:00:00:11:62:0f:80:02:00:a5:82:01:09:83:02:CC:CC:8d:02:60:04
+
+# Create PUB EF, ID=BBBB, size=0200 (need 77 = 0x4d bytes for 512 bit key)
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00  -s 00:E0:00:00:11:62:0f:80:02:00:4d:82:01:09:83:02:BB:BB:8d:02:60:04
+
+# To generate RSA key pair, build MSE with 2 DST's
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00  \
+                  -s 00:22:01:B6:0A:80:01:10:81:02:CC:CC:95:01:40 \
+	    	  -s 00:22:01:B6:0A:80:01:10:81:02:BB:BB:95:01:80 \
+		  -s 00:46:80:00:09:04:03:00:00:00:00:00:00:00 

@@ -1,0 +1,5 @@
+#! /bin/sh
+
+pkcs15-init=/home/pace/OpenSC/src/tools/pkcs15-init
+
+$pkcs15-init --create-pkcs15 --so-pin 1111 --so-puk 1234
