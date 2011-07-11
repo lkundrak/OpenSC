@@ -40,6 +40,8 @@
 ;B7:66:BA:AD:99:CB:FF:68:F3:E3:71:97:9D:1A:B8:A0:2F:54:AC:3E:76:68:C0:C4:3B:90:2B:7A:C2:D1:8B:86
 ;0C:7A:88:27:18:38:61:05:AE:55:09:F7:49:0A:8C:50:0C:A9:72:3E:27:26:0D:30:67:C5:C5:D5:95:55:49:78
 
+; simple rsa translated from
+; http://matt.might.net/articles/implementation-of-rsa-public-key-cryptography-algorithm-in-scheme-dialect-of-lisp/
 
 ; Mathematical routines.
 
