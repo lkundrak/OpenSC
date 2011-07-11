@@ -1,0 +1,5 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+pkcs15-crypt --sign --input /home/pace/rand20 --pkcs1 --output /tmp/signed1 --raw

@@ -1,0 +1,9 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+echo "create-pkcs15..."
+pkcs15-init --create-pkcs15 --so-pin 1111 --so-puk 1234
+
+echo "store-pin..."
+pkcs15-init --store-pin --auth-id 01 --pin 1111 --puk 1234 --label "Basic PIN"

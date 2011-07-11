@@ -16,4 +16,7 @@ sc_pkcs15_remove_object just removes from memory
 
 sc_pkcs15init_delete_object removes from card
 
-pkcs11-tool --module=opensc-pkcs11.so --type=privkey --delete-object --id 45 -vvvv
+pkcs11-tool --module=opensc-pkcs11.so --type=privkey --delete-object --id 45
+
+
+(parse-hex-le "12:34:56") => #x563412
