@@ -511,6 +511,7 @@ static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	struct sc_pkcs15_prkey_rsa *rsakey;
 	sc_path_t *pukey_path;
 	int len;
+	struct sc_path *prkey_path;
 	struct sc_file *prkey_file, *pukey_file;
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
@@ -522,7 +523,8 @@ static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	rsakey = &key->u.rsa;
 
 	/* select the rsa private key */
-	r = sc_select_file(card, &kinfo->path, &prkey_file);
+	prkey_path = &kinfo->path;
+	r = sc_select_file(card, prkey_path, &prkey_file);
 	if (r != SC_SUCCESS) {
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "unable to select rsa key file");
 		return r;
@@ -540,6 +542,7 @@ static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	memset (&skdata, 0, sizeof skdata);
 	skdata.prkey_file_id = prkey_file->id;
+	skdata.prkey_path = prkey_path;
 	skdata.pukey_file = pukey_file;
 	skdata.se_file_id = ACOS5_MAIN_SE_FILE;
 	skdata.modulus = rsakey->modulus.data;
