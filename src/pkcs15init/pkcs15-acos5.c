@@ -248,6 +248,8 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card, sc_pkcs15_obj
 	u8 sec_attr[100], *p;
 	int sec_attr_len;
 
+	SC_FUNC_CALLED(p15card->card->ctx, SC_LOG_DEBUG_VERBOSE);
+
 	/* The caller is supposed to have chosen a key file path for us */
 	if (key_info->path.len == 0 || key_info->modulus_length == 0)
 		return SC_ERROR_INVALID_ARGUMENTS;
@@ -288,7 +290,8 @@ done:
 
 	if (keyfile)
 		sc_file_free(keyfile);
-	return r;
+
+	SC_FUNC_RETURN(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
 static int
@@ -360,7 +363,6 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	int dlen;
 	u8 data[50];
 	sc_apdu_t apdu;
-	int prkey_file_id, pukey_file_id;
 	sc_path_t *prkey_path, *pukey_path;
 	int len;
 	u8 sec_attr[100], *p;
@@ -381,7 +383,6 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	/* extract the file_id from the given private key file */
 	prkey_path = &key_info->path;
 	len = prkey_path->len;
-	prkey_file_id = (prkey_path->value[len - 2] << 8) | prkey_path->value[len - 1];
 
 	/* make public key path, copying low byte of file id from private key */
 	if (sc_profile_get_file (profile, "template-hw-public-key", &pukey_file) < 0) {
@@ -390,8 +391,8 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	}
 	pukey_path = &pukey_file->path;
 	len = pukey_path->len;
-	pukey_path->value[len - 1] = prkey_file_id & 0xff;
-	pukey_file_id = (pukey_path->value[len - 2] << 8) | pukey_path->value[len - 1];
+	pukey_path->value[len - 1] = prkey_file->id & 0xff;
+	pukey_file->id = (pukey_path->value[len - 2] << 8) | pukey_path->value[len - 1];
 	
 	/* make the public key file */
 	pukey_raw_size = 5 + 8 + key_info->modulus_length / 8;
@@ -417,10 +418,10 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "No authorisation to generate private key");
 
 	/* dst means Digital Signature Template */
-	r = set_dst (card, prkey_file_id, 0x40);
+	r = set_dst (card, prkey_file->id, 0x40);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for priv key");
 
-	r = set_dst (card, pukey_file_id, 0x80);
+	r = set_dst (card, pukey_file->id, 0x80);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't set_dst for pub key");
 
 	dlen = 0;
@@ -502,34 +503,45 @@ static int acos5_do_authenticate(sc_profile_t *profile, sc_pkcs15_card_t *p15car
 static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	sc_pkcs15_object_t *obj, sc_pkcs15_prkey_t *key)
 {
+	struct sc_context *ctx = p15card->card->ctx;
+	struct sc_card *card = p15card->card;
 	sc_pkcs15_prkey_info_t *kinfo = (sc_pkcs15_prkey_info_t *) obj->data;
 	int       r;
 	sc_cardctl_acos5_store_key_t	skdata;
 	struct sc_pkcs15_prkey_rsa *rsakey;
+	sc_path_t *pukey_path;
+	int len;
+	struct sc_file *prkey_file, *pukey_file;
 
-	/* authenticate if necessary */
-	if (obj->auth_id.len != 0) {
-		r = acos5_do_authenticate(profile, p15card, &kinfo->path, SC_AC_OP_UPDATE);
-		if (r != SC_SUCCESS) 
-			return r;
-	}
+	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
-	/* select the rsa private key */
-	r = sc_select_file(p15card->card, &kinfo->path, NULL);
-	if (r != SC_SUCCESS) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to select rsa key file");
-		return r;
-	}
-
-	memset (&skdata, 0, sizeof skdata);
 	if (obj->type != SC_PKCS15_TYPE_PRKEY_RSA) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "only RSA is currently supported");
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "only RSA is supported");
 		return SC_ERROR_NOT_SUPPORTED;
 	}
 	rsakey = &key->u.rsa;
 
-	skdata.key_type = 1;
-	skdata.priv_path = kinfo->path;
+	/* select the rsa private key */
+	r = sc_select_file(card, &kinfo->path, &prkey_file);
+	if (r != SC_SUCCESS) {
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "unable to select rsa key file");
+		return r;
+	}
+
+	/* make public key path, copying low byte of file id from private key */
+	if (sc_profile_get_file (profile, "template-hw-public-key", &pukey_file) < 0) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL, "template-hw-public-key missing from profile");
+		return (SC_ERROR_NOT_SUPPORTED);
+	}
+	pukey_path = &pukey_file->path;
+	len = pukey_path->len;
+	pukey_path->value[len - 1] = prkey_file->id & 0xff;
+	pukey_file->id = (pukey_path->value[len - 2] << 8) | pukey_path->value[len - 1];
+
+	memset (&skdata, 0, sizeof skdata);
+	skdata.prkey_file_id = prkey_file->id;
+	skdata.pukey_file = pukey_file;
+	skdata.se_file_id = ACOS5_MAIN_SE_FILE;
 	skdata.modulus = rsakey->modulus.data;
 	skdata.modulus_len = rsakey->modulus.len;
 	skdata.exponent = rsakey->exponent.data;
@@ -547,13 +559,16 @@ static int acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	skdata.dmq1 = rsakey->dmq1.data;
 	skdata.dmq1_len = rsakey->dmq1.len;
 
-	r = sc_card_ctl(p15card->card, SC_CARDCTL_ACOS5_STORE_KEY, &skdata);
+	r = sc_card_ctl(card, SC_CARDCTL_ACOS5_STORE_KEY, &skdata);
 	if (r != SC_SUCCESS) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, "unable to store key data");
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "unable to store key data");
 		return r;
 	}
 	
-	return SC_SUCCESS;
+	sc_file_free (prkey_file);
+	sc_file_free (pukey_file);
+
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 struct ec_file {
