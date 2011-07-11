@@ -1,0 +1,21 @@
+#! /bin/sh
+
+dir=13
+echo ${dir}
+# create dir ${dir}00 with se file 6004
+#opensc-tool -vvvv -s 00:e0:00:00:11:62:0f:80:02:13:88:82:01:38:83:02:${dir}:00:8d:02:60:04
+
+# CREATE SE File: ID=6004, MRL=0x11, NOR=0x04 with SAC (read access = NEVER)
+#opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00 -s 00:E0:00:00:1b:62:19:80:02:00:20:82:05:0C:01:00:11:04:8C:08:7f:00:00:00:00:00:00:00:83:02:60:04
+
+# Create a PRIVATE EF, ID=dddd, size=0290 (need 165 bytes for 512 bit key)
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00  -s 00:E0:00:00:11:62:0f:80:02:00:a5:82:01:09:83:02:dd:dd:8d:02:60:04
+
+# Create PUB EF, ID=eeee, size=0200 (need 77 = 0x4d bytes for 512 bit key)
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00  -s 00:E0:00:00:11:62:0f:80:02:00:4d:82:01:09:83:02:ee:ee:8d:02:60:04
+
+# put private key
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00    	  -s 00:a4:00:00:02:dd:dd 		 -s 80:DA:00:00:A5:07:04:ee:ee:03:81:89:9F:E7:3F:F5:63:BF:49:6D:EC:B4:C5:EB:1E:E7:82:5A:99:AD:90:7E:E6:13:F5:94:6B:7E:2D:6D:5F:D1:13:9A:97:84:66:B1:7F:1D:ED:D5:2A:63:EC:27:14:71:47:7E:02:5E:B1:9C:20:A7:59:58:41:B7:A3:BA:D1:C9:AB:5B:6A:9A:2A:4E:ED:D4:DB:48:48:23:D9:47:BF:44:57:3C:66:1E:0B:FF:EE:B7:F8:0D:9D:A9:73:F3:94:8B:B7:66:BA:AD:99:CB:FF:68:F3:E3:71:97:9D:1A:B8:A0:2F:54:AC:3E:76:68:C0:C4:3B:90:2B:7A:C2:D1:8B:86:0C:7A:88:27:18:38:61:05:AE:55:09:F7:49:0A:8C:50:0C:A9:72:3E:27:26:0D:30:67:C5:C5:D5:95:55:49:78
+
+
+opensc-tool -vvvv -s 00:a4:00:00:02:${dir}:00    	  -s 00:a4:00:00:02:ee:ee 		 -s 80:da:00:00:4d:00:04:dd:dd:03:03:00:00:00:00:00:00:00:93:CE:A5:C8:7A:81:B5:5D:C7:6A:14:09:8D:30:D0:B5:FC:77:B9:BE:C6:1C:25:69:F5:10:68:9A:6D:A2:D4:DB:4F:9C:E7:1E:78:A2:9F:1E:C7:5F:98:07:DF:17:71:C0:C7:F5:BE:8B:6D:A6:BF:0F:23:E8:5C:15:46:74:0F:A5
