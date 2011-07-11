@@ -1042,6 +1042,7 @@ typedef struct sc_cardctl_isoApplet_import_key {
  */
 typedef struct sc_cardctl_acos5_store_key {
 	int prkey_file_id;
+	sc_path_t *prkey_path;
 	sc_file_t *pukey_file;
 	int se_file_id;
 	u8 *modulus;
