@@ -516,30 +516,18 @@ static int acos5_set_security_env(sc_card_t *card,
 	SC_FUNC_CALLED(card->ctx, SC_LOG_DEBUG_VERBOSE);
 
 	assert(card != NULL && env != NULL);
-	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0x22, 0x01, 0xb6);
 
+	/* manual section 4.2.5 */
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0x22, 0x01, 0xb8);
 	p = sbuf;
-	*p++ = 0x80;	/* algorithm reference */
+	*p++ = 0x95;
 	*p++ = 0x01;
-	*p++ = 0x10; /* or 0x11 for raw rsa */
-
-	*p++ = 0x95; /* qualifying byte */
-	*p++ = 1;
-	if (1) {
-		*p++ = 0xff;
-	} else {
-		switch (env->operation) {
-		case SC_SEC_OPERATION_DECIPHER:
-			*p++ = 0x80;
-			break;
-		case SC_SEC_OPERATION_SIGN:
-			*p++ = 0x40;
-			break;
-		default:
-			return SC_ERROR_INVALID_ARGUMENTS;
-		}
-	}
-
+	*p++ = 0xff;
+	
+	*p++ = 0x80;
+	*p++ = 0x01;
+	*p++ = 0x12;
+		
 	if (env->flags & SC_SEC_ENV_FILE_REF_PRESENT) {
 		*p++ = 0x81;
 		*p++ = env->file_ref.len;
@@ -595,6 +583,45 @@ static int acos5_restore_security_env(sc_card_t *card, int se_num)
 	
 }
 
+static int acos5_compute_signature(sc_card_t *card,
+				   const u8 * data, size_t datalen,
+				   u8 * out, size_t outlen)
+{
+	int r;
+	sc_apdu_t apdu;
+	u8 rbuf[SC_MAX_APDU_BUFFER_SIZE];
+	u8 sbuf[SC_MAX_APDU_BUFFER_SIZE];
+
+	assert(card != NULL && data != NULL && out != NULL);
+	if (datalen > 255)
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_ARGUMENTS);
+
+	if (outlen < datalen)
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, SC_ERROR_INVALID_ARGUMENTS);
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_4_SHORT, 0x2A, 0x80, 0x84);
+	apdu.resp = rbuf;
+	apdu.resplen = datalen;
+	apdu.le = datalen;
+
+	memcpy(sbuf, data, datalen);
+	sc_mem_reverse (sbuf, datalen);
+	apdu.data = sbuf;
+	apdu.lc = datalen;
+	apdu.datalen = datalen;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	if (apdu.sw1 == 0x90 && apdu.sw2 == 0x00) {
+		size_t len = apdu.resplen > outlen ? outlen : apdu.resplen;
+
+		memcpy(out, apdu.resp, len);
+		sc_mem_reverse (out, len);
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, len);
+	}
+	SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, sc_check_sw(card, apdu.sw1, apdu.sw2));
+	
+}
+
 static struct sc_card_driver *sc_get_driver(void)
 {
 	struct sc_card_driver *iso_drv = sc_get_iso7816_driver();
@@ -623,7 +650,7 @@ static struct sc_card_driver *sc_get_driver(void)
 	acos5_ops.restore_security_env = acos5_restore_security_env;
 	acos5_ops.set_security_env = acos5_set_security_env;
 	// decipher
-	// compute_signature
+	acos5_ops.compute_signature = acos5_compute_signature;
 	// change_reference_data
 	// reset_retry_counter
 	// create_file
