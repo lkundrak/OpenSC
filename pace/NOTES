@@ -18,6 +18,21 @@ sc_pkcs15init_delete_object removes from card
 
 pkcs11-tool --module=opensc-pkcs11.so --type=privkey --delete-object --id 45
 
+================================================================
+
+echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa > TMP.a64
+ls -l TMP.a64
+openssl rsautl -sign -raw -in TMP.a64 -inkey ~/sslkeys/test.apebble.com.key -out TMP.out1
+openssl rsautl -verify -raw -in TMP.a64 -inkey ~/sslkeys/test.apebble.com.key -out TMP.out2
+
+
+openssl rsautl -verify -raw -in TMP.a64.signed -inkey ~/sslkeys/test.apebble.com.key -out TMP.a64.recovered
+
+pkcs15-crypt --sign --key 45 -i /home/pace/OpenSC/pace/TMP.a64 --output /tmp/TMP.a64.card
+
+
+================================================================
+
 
 (parse-hex-le "12:34:56") => #x563412
 ================================================================
