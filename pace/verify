@@ -5,7 +5,7 @@ PATH=$HOME/OpenSC/src/tools:$PATH
 echo ""
 echo "try incorrect pin..."
 (
-echo "cd 5016"
+echo "cd 5015"
 echo "verify CHV1 31:31:31:32"
 ) | opensc-explorer
 
@@ -13,6 +13,6 @@ echo ""
 echo ""
 echo "try correct pin..."
 (
-echo "cd 5016"
+echo "cd 5015"
 echo "verify CHV1 31:31:31:31"
 ) | opensc-explorer

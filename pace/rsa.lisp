@@ -26,7 +26,10 @@
 ;(setq qinv (modulo-inverse q p))
 
 (setq e 3)
-(setq n (parse-hex-le "93:CE:A5:C8:7A:81:B5:5D:C7:6A:14:09:8D:30:D0:B5:FC:77:B9:BE:C6:1C:25:69:F5:10:68:9A:6D:A2:D4:DB:4F:9C:E7:1E:78:A2:9F:1E:C7:5F:98:07:DF:17:71:C0:C7:F5:BE:8B:6D:A6:BF:0F:23:E8:5C:15:46:74:0F:A5"))
+(setq n (parse-hex-le (concatenate 'string
+				   "93:CE:A5:C8:7A:81:B5:5D:C7:6A:14:09:8D:30:D0:B5:FC:77:B9:BE:C6:"
+				   "1C:25:69:F5:10:68:9A:6D:A2:D4:DB:4F:9C:E7:1E:78:A2:9F:1E:C7:5F:"
+				   "98:07:DF:17:71:C0:C7:F5:BE:8B:6D:A6:BF:0F:23:E8:5C:15:46:74:0F:A5")))
 (setq p (parse-hex-le "81:89:9F:E7:3F:F5:63:BF:49:6D:EC:B4:C5:EB:1E:E7:82:5A:99:AD:90:7E:E6:13:F5:94:6B:7E:2D:6D:5F:D1"))
 (setq q (parse-hex-le "13:9A:97:84:66:B1:7F:1D:ED:D5:2A:63:EC:27:14:71:47:7E:02:5E:B1:9C:20:A7:59:58:41:B7:A3:BA:D1:C9"))
 
