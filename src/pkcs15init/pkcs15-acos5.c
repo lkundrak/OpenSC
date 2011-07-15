@@ -30,24 +30,71 @@
 #include "pkcs15-init.h"
 #include "profile.h"
 
+/* manual secction 2.2 */
+#define ACOS5_LIFE_CYCLE_FUSE 0x3088
+
 /*
  * Card initialization.
  */
 static int
 acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 {
+	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
 	sc_path_t	path;
 	sc_file_t	*file;
 	int		r;
+	sc_apdu_t apdu;
+	int off;
+	u8 data[256];
+	int dlen;
 
-	/* should create MF here, if necessary */
-
+	/* try selecting MF */
 	sc_format_path("3F00", &path);
-	if ((r = sc_select_file(p15card->card, &path, &file)) < 0) {
-		return r;
+	if (sc_select_file(p15card->card, &path, NULL) == 0)
+		return (0);
+
+	/* MF doesn't exist yet */
+
+	/* clear the flag that prevents future erases (manual sect 2.2) */
+	dlen = 0;
+	data[dlen++] = 0;
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT,
+			0xd6,
+			(ACOS5_LIFE_CYCLE_FUSE >> 8) & 0xff,
+			ACOS5_LIFE_CYCLE_FUSE & 0xff);
+	apdu.data = data;
+	apdu.datalen = dlen;
+	apdu.lc = dlen;
+	r = sc_transmit_apdu (card, &apdu);
+	if (r == 0) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL,
+			  "card erasing enabled\n");
+	} else {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL,
+			  "card may not be erasable in the future\n");
 	}
 
-	sc_file_free(file);
+	/* create MF by hand: see manual section 7.0 */
+	dlen = 0;
+	data[dlen++] = 0x62;
+	data[dlen++] = 0x00; /* will patch length at end */
+	data[dlen++] = 0x82;
+	data[dlen++] = 0x02;
+	data[dlen++] = 0x3f;
+	data[dlen++] = 0xff;
+	data[dlen++] = 0x83;
+	data[dlen++] = 0x02;
+	data[dlen++] = 0x3f;
+	data[dlen++] = 0x00;
+	data[1] = dlen - 2;
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT,
+			0xe0, 0, 0);
+	apdu.data = data;
+	apdu.datalen = dlen;
+	apdu.lc = dlen;
+	r = sc_transmit_apdu (card, &apdu);
+	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot create MF");
 
 	return (0);
 }
@@ -744,6 +791,9 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 	struct ec_file root;
 	int r;
 	int pass;
+
+	printf ("erase card\n");
+	exit (1);
 
 	memset (&root, 0, sizeof root);
 	sc_format_path("3F00", &root.path);
