@@ -33,6 +33,113 @@
 /* manual secction 2.2 */
 #define ACOS5_LIFE_CYCLE_FUSE 0x3088
 
+#define CONFMEM_BASE 0x3080
+#define CONFMEM_SIZE (0x30d0 - CONFMEM_BASE)
+
+void
+acos5_display_confmem (sc_card_t *card)
+{
+	struct sc_context *ctx = card->ctx;
+	sc_apdu_t apdu;
+	int i;
+	u8 confmem[CONFMEM_SIZE];
+	int r;
+
+	/* display current config memory */
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_2_SHORT,
+			0xb0, /* read binary */
+			(CONFMEM_BASE >> 8) & 0xff,
+			CONFMEM_BASE & 0xff);
+	memset (confmem, 0x55, sizeof confmem);
+	apdu.resp = confmem;
+	apdu.resplen = sizeof confmem;
+	apdu.le = apdu.resplen;
+	r = sc_transmit_apdu (card, &apdu);
+	if (r < 0) {
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL,
+			  "can't read confmem\n");
+		exit (1);
+	}
+
+	for (i = 0; i < CONFMEM_SIZE; i++) {
+		if (i % 16 == 0)
+			printf ("\n%04x", CONFMEM_BASE + i);
+		else if (i % 8 == 0)
+			printf (" ");
+		printf (" %02x", confmem[i]);
+	}
+	printf ("\n");
+}
+
+int
+acos5_read_confmem (sc_card_t *card, int offset, u8 *data, int len)
+{
+	struct sc_context *ctx = card->ctx;
+	sc_apdu_t apdu;
+	int i;
+	int r;
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_2_SHORT,
+			0xb0, /* read binary */
+			(offset >> 8) & 0xff,
+			offset & 0xff);
+	memset (data, 0x55, len);
+	apdu.resp = data;
+	apdu.resplen = len;
+	apdu.le = apdu.resplen;
+	r = sc_transmit_apdu (card, &apdu);
+	return (r);
+}
+
+int
+acos5_write_confmem (sc_card_t *card, int offset, u8 *data, int len)
+{
+	struct sc_context *ctx = card->ctx;
+	sc_apdu_t apdu;
+	int i;
+	int r;
+
+	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT,
+			0xd6, /* update binary */
+			(offset >> 8) & 0xff,
+			offset & 0xff);
+	apdu.data = data;
+	apdu.datalen = len;
+	apdu.lc = len;
+	r = sc_transmit_apdu (card, &apdu);
+	return (r);
+}
+
+void
+acos5_dump (sc_card_t *card)
+{
+	FILE *f;
+	u8 buf[64];
+	int addr;
+
+	if ((f = fopen ("acos5.dump", "w")) == NULL) {
+		printf ("can't create dump file\n");
+		exit (1);
+	}
+	for (addr = 0; addr < 0x3200; addr += 64) {
+		if (acos5_read_confmem (card, addr, buf, 64) < 0)
+			break;
+		fwrite (buf, 1, 64, f);
+	}
+	fclose (f);
+}
+
+static u8 init_3080[] = {
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x37, 0xe0,
+};
+
+static void
+acos5_finish_clear (struct sc_card *card)
+{
+	acos5_write_confmem (card, 0x3080, init_3080, sizeof init_3080);
+}
+
 /*
  * Card initialization.
  */
@@ -45,14 +152,24 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	sc_file_t	*file;
 	int		r;
 	sc_apdu_t apdu;
-	int off;
 	u8 data[256];
 	int dlen;
+	int i;
 
 	/* try selecting MF */
 	sc_format_path("3F00", &path);
-	if (sc_select_file(p15card->card, &path, NULL) == 0)
+	if (sc_select_file(p15card->card, &path, NULL) == 0) {
+		printf ("select ok\n");
 		return (0);
+	}
+
+	/* see if User EEPROM Limit is set, if not, fixup the conf block */
+	data[0] = 0;
+	acos5_read_confmem (card, 0x308c, data, 1);
+	if (data[0] != 0xff) {
+		printf ("finish clear\n");
+		acos5_finish_clear (card);
+	}
 
 	/* MF doesn't exist yet */
 
@@ -785,21 +902,19 @@ delete_every (struct sc_card *card, struct ec_file *fp)
 	return (delete_count);
 }
 
-static int 
-acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
+static int
+acos5_file_by_file_erase (struct sc_pkcs15_card *p15card)
 {
 	struct ec_file root;
 	int r;
 	int pass;
 
-	printf ("erase card\n");
-	exit (1);
-
 	memset (&root, 0, sizeof root);
 	sc_format_path("3F00", &root.path);
 
 	r = get_files (p15card->card, &root);
-	SC_TEST_RET (p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't get files");
+	SC_TEST_RET (p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r,
+		     "can't get files");
 	
 	print_files (0, &root);
 
@@ -815,12 +930,39 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 
 	printf ("last ditch effort:\n");
 	if (delete_every (p15card->card, &root)) {
-		printf ("got something ... it may help to run --erase-card again\n");
+		printf ("deleted something...try running --erase-card again\n");
 	} else {
-		printf ("that's all\n");
+		printf ("that's all that can be deleted\n");
 	}
 
 	return (0);
+}
+
+static int 
+acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
+{
+	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
+	int		r;
+	sc_apdu_t apdu;
+	
+	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_1, 0xca, 0xff, 0);
+	apdu.cla |= 0x80;
+	r = sc_transmit_apdu(card, &apdu);
+	if (r < 0) {
+		printf ("clear card failed\n");
+		exit (1);
+	}
+
+	/*
+	 * still need to do acos5_finish_clear(card), but 
+	 * it appears the card needs to be reset first.  so,
+	 * I put it in acos5_init_card, so it will be
+	 * run when the user next runs pkcs15-init -C
+	 */
+
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 
