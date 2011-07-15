@@ -2,4 +2,9 @@
 
 PATH=$HOME/OpenSC/src/tools:$PATH
 
-pkcs15-crypt --sign --input /home/pace/rand20 --pkcs1 --output /tmp/signed1 --raw
+dd if=/dev/urandom of=TMP.data bs=64 count=1
+pkcs15-crypt --sign --key 45 -i TMP.data --output TMP.signed $*
+
+openssl rsautl -verify -raw -in TMP.signed -inkey ~/sslkeys/test.apebble.com.key -out TMP.recovered
+
+cksum TMP.data TMP.recovered
