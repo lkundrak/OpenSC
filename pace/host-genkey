@@ -1,0 +1,3 @@
+#! /bin/sh
+
+openssl genrsa -out rsa1024.key 1024
