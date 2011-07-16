@@ -23,6 +23,7 @@
 #endif
 
 #include <string.h>
+#include <stdlib.h>
 
 #include "internal.h"
 #include "cardctl.h"
@@ -583,6 +584,48 @@ static int acos5_restore_security_env(sc_card_t *card, int se_num)
 	
 }
 
+static int acos5_decipher(sc_card_t *card,
+			  const u8 * crgram, size_t crgram_len,
+			  u8 * out, size_t outlen)
+{
+	int       r;
+	sc_apdu_t apdu;
+	u8        *sbuf = NULL;
+
+	assert(card != NULL && crgram != NULL && out != NULL);
+	SC_FUNC_CALLED(card->ctx, SC_LOG_DEBUG_NORMAL);
+
+	sbuf = malloc(crgram_len);
+	if (sbuf == NULL)
+		return SC_ERROR_OUT_OF_MEMORY;
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_4, 0x2A, 0x80, 0x84);
+	apdu.resp    = out;
+	apdu.resplen = outlen;
+	/* if less than 256 bytes are expected than set Le to 0x00
+	 * to tell the card the we want everything available (note: we
+	 * always have Le <= crgram_len) */
+	apdu.le      = (outlen >= 256 && crgram_len < 256) ? 256 : outlen;
+	/* Use APDU chaining with 2048bit RSA keys if the card does not do extended APDU-s */
+	if ((crgram_len > 255) && !(card->caps & SC_CARD_CAP_APDU_EXT))
+		apdu.flags |= SC_APDU_FLAGS_CHAINING;
+	
+	memcpy(sbuf, crgram, crgram_len);
+	sc_mem_reverse (sbuf, crgram_len);
+	apdu.data = sbuf;
+	apdu.lc = crgram_len;
+	apdu.datalen = crgram_len;
+	r = sc_transmit_apdu(card, &apdu);
+	sc_mem_clear(sbuf, crgram_len);
+	free(sbuf);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");
+	sc_mem_reverse (out, crgram_len);
+	if (apdu.sw1 == 0x90 && apdu.sw2 == 0x00)
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, apdu.resplen);
+	else
+		SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_VERBOSE, sc_check_sw(card, apdu.sw1, apdu.sw2));
+}
+
 static int acos5_compute_signature(sc_card_t *card,
 				   const u8 * data, size_t datalen,
 				   u8 * out, size_t outlen)
@@ -649,7 +692,7 @@ static struct sc_card_driver *sc_get_driver(void)
 	// logout
 	acos5_ops.restore_security_env = acos5_restore_security_env;
 	acos5_ops.set_security_env = acos5_set_security_env;
-	// decipher
+	acos5_ops.decipher = acos5_decipher;
 	acos5_ops.compute_signature = acos5_compute_signature;
 	// change_reference_data
 	// reset_retry_counter
