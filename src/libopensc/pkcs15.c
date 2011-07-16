@@ -877,7 +877,6 @@ sc_pkcs15_card_clear(struct sc_pkcs15_card *p15card)
 	}
 }
 
-
 struct sc_app_info *
 sc_find_app(struct sc_card *card, struct sc_aid *aid)
 {
