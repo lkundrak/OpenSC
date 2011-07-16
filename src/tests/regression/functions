@@ -356,6 +356,6 @@ function p15_validate {
 	msg "Validating card using pkcs11-tool"
 	run_display_output $p11tool -t --login --pin 0000 \
 		--module $p11module \
-		--slot-label "OpenSC Test Card" $* < /dev/null
+		--token-label "OpenSC Test Card" $* < /dev/null
 	success
 }
