@@ -3686,8 +3686,7 @@ static int test_signature(CK_SESSION_HANDLE sess)
 		return 0;
 	}
 
-	data[0] = 0;
-	data[1] = 1;
+	memset (data, 0, sizeof data);
 
 	/* 1st test */
 
