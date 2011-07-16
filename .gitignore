@@ -34,6 +34,7 @@ stamp-h*
 *.def
 *.dll
 *.exe
+*.o
 *.la
 *.lib
 *.lo
@@ -74,3 +75,12 @@ p15dump
 prngtest
 base64
 lottery
+src/common/compat_getopt_main
+src/minidriver/opensc-minidriver.inf
+src/tools/cardos-tool
+src/tools/westcos-tool
+win32/OpenSC.iss
+win32/OpenSC.wxs
+win32/winconfig.h
+MacOSX/build-package
+doc/api.work
