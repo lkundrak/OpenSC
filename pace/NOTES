@@ -33,6 +33,17 @@ pkcs15-crypt --sign --key 45 -i /home/pace/OpenSC/pace/TMP.a64 --output /tmp/TMP
 
 ================================================================
 
+pkcs15-tool --read-ssh-key 45
+output is 2 lines, the first all numbers, the second starting with ssh-rsa
+put both lines in target acct .ssh/authorized_keys
+
+ssh -I /usr/local/lib/opensc-pkcs11.so test@localhost
+
+should ask for PIN but nothing else
+
+
+================================================================
+
 
 (parse-hex-le "12:34:56") => #x563412
 ================================================================
