@@ -4,12 +4,12 @@
 #
 
 cardinfo {
-	label           = "ACOS5";
-	manufacturer    = "ACS";
-	min-pin-length	= 4;
-	max-pin-length	= 8;
-	pin-encoding	= ascii-numeric;
-   	pin-pad-char	= 0xFF;
+    label           = "ACOS5";
+    manufacturer    = "ACS";
+    min-pin-length  = 4;
+    max-pin-length  = 8;
+    pin-encoding    = ascii-numeric;
+    pin-pad-char    = 0xFF;
 }
 
 #
@@ -89,85 +89,84 @@ filesystem {
     	    file-id   = 2F00;
             structure = transparent;
 	        size      = 128;
-	        acl	      = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
+	        acl	  = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
 	    }
 
         DF PKCS15-AppDF {
- 	        type      = DF;
-	        file-id   = 5015;
+	    type      = DF;
+	    file-id   = 5015;
             acl       = DELETE=$PIN, CREATE=$PIN;
 	    
-		# sort of like setcos.profile
-		EF pinfile {
-			file-id       = 6001;
-			structure     = 0x0c;
-			record-length = 18;
-			size          = 18;
-			ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
-		}
+	    # sort of like setcos.profile
+	    EF pinfile {
+	        file-id       = 6001;
+		structure     = 0x0c;
+		record-length = 18;
+		size          = 18;
+		ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
+	    }
 
-		EF sefile {
-			file-id       = 6004;
-			structure     = 0x0c;
-			record-length = 32;
-			size          = 32;
-			ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
-		}
+	    EF sefile {
+	        file-id       = 6004;
+		structure     = 0x0c;
+		record-length = 32;
+		size          = 32;
+		ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
+	    }
 
-
-            EF PKCS15-ODF {
-        	    file-id   = 5031;
-                structure = transparent;
-        	    size      = $odf-size;
-	            acl       = READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
-        	}
+	    EF PKCS15-ODF {
+	        file-id   = 5031;
+		structure = transparent;
+		size      = $odf-size;
+		acl       = READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
+	    }
 
             EF PKCS15-TokenInfo {
-        	   file-id	  = 5032;
-	           structure  = transparent;
-        	   acl	      = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
-            }
+	        file-id	  = 5032;
+		structure = transparent;
+		acl	  = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
+	    }
 
             EF PKCS15-UnusedSpace {
                 file-id	  = 5033;
                 structure = transparent;
                 size	  = $unusedspace-size;
-                acl	      = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
+                acl	  = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
             }
 
             EF PKCS15-AODF {
                 file-id	  = 4411;
                 structure = transparent;
                 size	  = $aodf-size;
-                acl	      = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
+                acl	  = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
             }
 
             EF PKCS15-PrKDF {
                 file-id	  = 4412;
                 structure = transparent;
                 size	  = $prkdf-size;
-                acl	      = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
+                acl	  = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
             }
 
             EF PKCS15-PuKDF {
                 file-id	  = 4414;
                 structure = transparent;
                 size	  = $pukdf-size;
-                acl	      = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
+                acl	  = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
             }
 
             EF PKCS15-CDF {
                 file-id	  = 4413;
                 structure = transparent;
                 size	  = $cdf-size;
-                acl	      = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
+                acl	  = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
             }
 
             EF PKCS15-CDF-TRUSTED {
                 file-id	  = 4415;
                 structure = transparent;
                 size	  = $cdf-trusted-size;
-                acl	      = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
+                acl	  = *=NEVER, READ=NONE, UPDATE=$PIN, DELETE=$SOPIN;
             }
 
             EF PKCS15-DODF {
@@ -192,7 +191,7 @@ filesystem {
             EF template-public-key {
                 structure = transparent;
                 file-id	  = 5511;
-                acl	      = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+                acl	  = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
             }
 
             EF template-certificate {
@@ -210,18 +209,18 @@ filesystem {
                     acl       = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
                 }
                 EF public-key {
-                    file-id	  = 5511;
+                    file-id   = 5511;
                     structure = transparent;
                     acl       = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
                 }
 		
                 # Certificate template
                 EF certificate {
-                    file-id	  = 4311;
+                    file-id   = 4311;
                     structure = transparent;
                     acl       = READ=NONE, UPDATE=$PIN, DELETE=$PIN;
                 }
             }
-	    }
+	}
     }
 }
