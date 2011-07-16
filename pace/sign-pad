@@ -1,0 +1,51 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+pattern=4
+case $pattern in
+    0)
+	( dd if=/dev/zero bs=20 count=1 ) > TMP.data
+	;;
+    1)
+	( dd if=/dev/zero bs=19 count=1; printf "\001" ) > TMP.data
+	;;
+    2)
+	( dd if=/dev/zero bs=19 count=1; printf "\002" ) > TMP.data
+	;;
+    3)
+	( printf "\001"; dd if=/dev/zero bs=19 count=1  ) > TMP.data
+	;;
+    4)
+	( printf "\001"; dd if=/dev/urandom bs=19 count=1 ) > TMP.data
+	;;
+esac
+
+# openssl rsautl -sign -pkcs -inkey ~/sslkeys/test.apebble.com.key -in TMP.data -out TMP.signed
+
+pkcs15-crypt --pin 1111 --sign --sha-1 --pkcs1 --key 45 -i TMP.data --output TMP.signed $*
+if [ $? != 0 ]
+then
+    exit 1
+fi
+
+openssl rsautl -encrypt -raw -in TMP.signed -inkey ~/sslkeys/test.apebble.com.key -out TMP.raw
+
+dd if=TMP.raw of=TMP.recovered bs=1 skip=44
+
+echo "data"
+hd -v TMP.data
+echo "signed"
+hd -v TMP.signed
+echo "raw"
+hd -v TMP.raw
+echo "recovered"
+hd -v TMP.recovered
+
+cmp TMP.data TMP.recovered
+if [ $? = 0 ]
+then
+    echo "TMP.data and TMP.recovered match"
+fi
+
+

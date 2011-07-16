@@ -1,0 +1,38 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+
+pattern=4
+case $pattern in
+    1)
+	( dd if=/dev/zero bs=63 count=1; printf "\001" ) > TMP.data
+	;;
+    2)
+	( dd if=/dev/zero bs=63 count=1; printf "\002" ) > TMP.data
+	;;
+    3)
+	( printf "\001"; dd if=/dev/zero bs=63 count=1  ) > TMP.data
+	;;
+    4)
+	( printf "\001"; dd if=/dev/urandom bs=63 count=1 ) > TMP.data
+	;;
+esac
+
+openssl rsautl -encrypt -raw -in TMP.data -out TMP.enc -inkey ~/sslkeys/test.apebble.com.key 
+
+pkcs15-crypt --pin 1111 --decipher --key 45 -i TMP.enc --output TMP.dec $*
+
+echo "data"
+hd -v TMP.data
+echo "enc"
+hd -v TMP.enc
+echo "dec"
+hd -v TMP.dec
+
+cmp TMP.data TMP.dec
+if [ $? = 0 ]
+then
+    echo "TMP.data and TMP.dec match"
+fi
+
