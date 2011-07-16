@@ -526,6 +526,10 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	len = prkey_path->len;
 
 	/* make public key path, copying low byte of file id from private key */
+	r = sc_select_file(card, &key_info->path, &prkey_file);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "Cannot store key: select key file failed");
+	
 	if (sc_profile_get_file(profile,
 				"template-hw-public-key", &pukey_file) < 0) {
 		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
@@ -533,6 +537,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		SC_FUNC_RETURN (ctx, SC_LOG_DEBUG_VERBOSE, 
 				SC_ERROR_NOT_SUPPORTED);
 	}
+
 	pukey_path = &pukey_file->path;
 	len = pukey_path->len;
 	pukey_path->value[len - 1] = prkey_file->id & 0xff;
@@ -556,10 +561,6 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "can't make pubkey file");
 
 	/* now set up for telling the card to generate the new key pair */
-	r = sc_select_file(card, &key_info->path, &prkey_file);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-		    "Cannot store key: select key file failed");
-	
 	r = sc_pkcs15init_authenticate(profile, p15card, prkey_file,
 				       SC_AC_OP_GENERATE);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
@@ -614,18 +615,24 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		if (exponent_raw[len - 1])
 			break;
 	}
-	memcpy (exponent, exponent_raw, len);
-	sc_mem_reverse(exponent, len);
-	pubkey->u.rsa.exponent.data = exponent;
+	if ((p = malloc (len)) == NULL)
+		return SC_ERROR_OUT_OF_MEMORY;
+	memcpy (p, exponent_raw, len);
+	sc_mem_reverse (p, len);
 	pubkey->u.rsa.exponent.len = len;
+	pubkey->u.rsa.exponent.data = p;
 
 	len = key_info->modulus_length / 8;
-	if (len > sizeof modulus)
-		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
-	memcpy(modulus, pukey_raw + 5 + 8, len);
-	sc_mem_reverse (modulus, len);
-	pubkey->u.rsa.modulus.data = modulus;
+	if ((p = malloc (len)) == NULL)
+		return SC_ERROR_OUT_OF_MEMORY;
+	memcpy (p, pukey_raw + 5 + 8, len);
 	pubkey->u.rsa.modulus.len = len;
+	pubkey->u.rsa.modulus.data = p;
+
+	/*
+	 * the memory allocated for the exponent and modulus will be
+	 * freed in sc_pkcs15_erase_pubkey()
+	 */
 
 	sc_file_free(prkey_file);
 	sc_file_free(pukey_file);
