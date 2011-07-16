@@ -59,6 +59,7 @@ enum {
 	OPT_PKCS1,
 	OPT_BIND_TO_AID,
 	OPT_VERSION,
+	OPT_HASH_NONE,
 };
 
 static const struct option options[] = {
@@ -77,6 +78,7 @@ static const struct option options[] = {
 	{ "sha-512",		0, NULL,		OPT_SHA512 },
 	{ "sha-224",		0, NULL,		OPT_SHA224 },
 	{ "md5",		0, NULL,		OPT_MD5 },
+	{ "hash-none",		0, NULL,		OPT_HASH_NONE },
 	{ "pkcs1",		0, NULL,		OPT_PKCS1 },
 	{ "pin",		1, NULL,		'p' },
 	{ "aid",		1, NULL,		OPT_BIND_TO_AID },
@@ -417,6 +419,9 @@ int main(int argc, char * const argv[])
 			break;
 		case OPT_MD5:
 			opt_crypt_flags |= SC_ALGORITHM_RSA_HASH_MD5;
+			break;
+		case OPT_HASH_NONE:
+			opt_crypt_flags |= SC_ALGORITHM_RSA_HASH_NONE;
 			break;
 		case OPT_PKCS1:
 			opt_crypt_flags |= SC_ALGORITHM_RSA_PAD_PKCS1;

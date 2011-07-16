@@ -59,10 +59,14 @@ static int acos5_init(sc_card_t * card)
 {
 	unsigned long	flags;
 
+	if (0 && card->ctx->debug < 4)
+		card->ctx->debug = 4;
+
 	flags = 0;
 	flags |= SC_ALGORITHM_RSA_RAW;
 	flags |= SC_ALGORITHM_RSA_HASH_NONE;
 	flags |= SC_ALGORITHM_ONBOARD_KEY_GEN;
+	flags |= SC_ALGORITHM_NEED_USAGE;
 
 	_sc_card_add_rsa_alg(card, 512, flags, 0);
 	_sc_card_add_rsa_alg(card, 1024, flags, 0);

@@ -2,7 +2,7 @@
 
 PATH=$HOME/OpenSC/src/tools:$PATH
 
-pattern=4
+pattern=5
 case $pattern in
     0)
 	( dd if=/dev/zero bs=20 count=1 ) > TMP.data
@@ -19,16 +19,25 @@ case $pattern in
     4)
 	( printf "\001"; dd if=/dev/urandom bs=19 count=1 ) > TMP.data
 	;;
+    5)
+	printf "xxxxxxxxxxxxxxxxxxxx" > TMP.data
+	;;
 esac
 
 # openssl rsautl -sign -pkcs -inkey ~/sslkeys/test.apebble.com.key -in TMP.data -out TMP.signed
 
-pkcs15-crypt --pin 1111 --sign --sha-1 --pkcs1 --key 45 -i TMP.data --output TMP.signed $*
+# for myeid
+# pkcs15-crypt --pin 1111 --sign --pkcs1 --key 24 -i /home/pace/OpenSC/pace/TMP.data --output TMP.signed -vvvv
+
+# pkcs15-crypt --pin 1111 --sign --sha-1 --pkcs1 --key 45 -i TMP.data --output TMP.signed $*
+pkcs15-crypt --pin 1111 --sign --pkcs1 --hash-none  --key 45 -i TMP.data --output TMP.signed $*
 if [ $? != 0 ]
 then
     exit 1
 fi
+echo pkcs15-crypt done
 
+openssl rsautl -verify -in TMP.signed -inkey ~/sslkeys/test.apebble.com.key -out TMP.v
 openssl rsautl -encrypt -raw -in TMP.signed -inkey ~/sslkeys/test.apebble.com.key -out TMP.raw
 
 dd if=TMP.raw of=TMP.recovered bs=1 skip=44
@@ -39,6 +48,8 @@ echo "signed"
 hd -v TMP.signed
 echo "raw"
 hd -v TMP.raw
+echo "v"
+hd -v TMP.v
 echo "recovered"
 hd -v TMP.recovered
 
@@ -48,4 +59,12 @@ then
     echo "TMP.data and TMP.recovered match"
 fi
 
+
+# hd TMP.raw
+# 00000000  00 01 ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
+# 00000010  ff ff ff ff ff ff ff ff  ff ff ff ff ff ff ff ff  |................|
+# *
+# 00000060  ff ff ff ff ff ff ff ff  ff ff ff 00 78 78 78 78  |............xxxx|
+# 00000070  78 78 78 78 78 78 78 78  78 78 78 78 78 78 78 78  |xxxxxxxxxxxxxxxx|
+# 00000080
 
