@@ -1,6 +1,9 @@
 /*
  * acos5 specific operations for PKCS15 initialization
- * (from pkcs15-myeid.c)
+ *
+ * Copyright (c) 2011 Pace Willisson <pace@alum.mit.edu>
+ * and includes elements from many of the
+ * OpenSC/pkcs15init/pkcs15-*.c examples
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
