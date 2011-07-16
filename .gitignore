@@ -35,6 +35,7 @@ tags
 *.def
 *.dll
 *.exe
+*.o
 *.la
 *.lib
 *.lo
@@ -122,3 +123,12 @@ src/tests/pintest
 src/tests/prngtest
 
 version.m4.ci
+src/common/compat_getopt_main
+src/minidriver/opensc-minidriver.inf
+src/tools/cardos-tool
+src/tools/westcos-tool
+win32/OpenSC.iss
+win32/OpenSC.wxs
+win32/winconfig.h
+MacOSX/build-package
+doc/api.work
