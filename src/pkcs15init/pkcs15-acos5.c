@@ -150,10 +150,8 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	/* see if User EEPROM Limit is set, if not, fixup the conf block */
 	data[0] = 0;
 	acos5_read_confmem(card, 0x308c, data, 1);
-	if (data[0] != 0xff) {
-		printf("finish clear\n");
+	if (data[0] != 0xff)
 		acos5_finish_clear(card);
-	}
 
 	/* clear the flag that prevents future erases (manual sect 2.2) */
 	dlen = 0;
