@@ -313,6 +313,11 @@ int sc_pkcs15_compute_signature(struct sc_pkcs15_card *p15card,
 
 	LOG_FUNC_CALLED(ctx);
 
+	printf ("compute sig inbuf %d: ", inlen);
+	for (r = 0; r < inlen; r++)
+		printf ("%02x ", in[r]);
+	printf ("\n");
+
 	if (!(prkey->usage & (SC_PKCS15_PRKEY_USAGE_SIGN|SC_PKCS15_PRKEY_USAGE_SIGNRECOVER|
 					SC_PKCS15_PRKEY_USAGE_NONREPUDIATION)))
 		LOG_TEST_RET(ctx, SC_ERROR_NOT_ALLOWED, "This key cannot be used for signing");
