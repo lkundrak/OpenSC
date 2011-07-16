@@ -626,6 +626,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	if ((p = malloc (len)) == NULL)
 		return SC_ERROR_OUT_OF_MEMORY;
 	memcpy (p, pukey_raw + 5 + 8, len);
+	sc_mem_reverse (p, len);
 	pubkey->u.rsa.modulus.len = len;
 	pubkey->u.rsa.modulus.data = p;
 
