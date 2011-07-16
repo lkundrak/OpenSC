@@ -2,4 +2,4 @@
 
 PATH=$HOME/OpenSC/src/tools:$PATH
 
-pkcs15-init --generate-key rsa/512 --auth-id 01 --id 46 --pin 1111 -vvvv
+pkcs15-init --generate-key rsa/512 --auth-id 01 --id 46 --pin 1111 --key-usage sign,decrypt -vvvv
