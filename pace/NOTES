@@ -41,6 +41,20 @@ ssh -I /usr/local/lib/opensc-pkcs11.so test@localhost
 
 should ask for PIN but nothing else
 
+using myeid:
+sh -I /usr/local/lib/opensc-pkcs11.so test@localhost
+Enter PIN for 'MyEID (Basic PIN)': 
+compute sig inbuf 35: 30 21 30 09 06 05 2b 0e 03 02 1a 05 00 04 14 75 49 3b b6 49 ac ca 38 6d 1e 97 2b 4d a0 ff f1 c5 b7 24 9f 
+
+
+
+================================================================
+sign
+myeid alg_info
+{algorithm = 0x0, key_length = 0x400, flags = 0x80000033, u = {_rsa = {exponent = 0x0}, _ec = {ext_flags = 0x0}}}
+0xb7b5b6c0 23:23:33.801 [pkcs15-crypt] padding.c:277:sc_get_encoding_flags: iFlags 0x2, card capabilities 0x80000033
+0xb7b5b6c0 23:24:04.489 [pkcs15-crypt] padding.c:306:sc_get_encoding_flags: pad flags 0x0, secure algorithm flags 0x2
+0xb7b5b6c0 23:24:27.186 [pkcs15-crypt] pkcs15-sec.c:324:sc_pkcs15_compute_signature: DEE flags:0x00000002 alg_info->flags:0x80000033 pad:0x00000000 sec:0x00000002
 
 ================================================================
 

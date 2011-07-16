@@ -190,6 +190,11 @@ int sc_pkcs15_compute_signature(struct sc_pkcs15_card *p15card,
 	LOG_FUNC_CALLED(ctx);
 	sc_log(ctx, "security operation flags 0x%X", flags);
 
+	printf ("compute sig inbuf %d: ", inlen);
+	for (r = 0; r < inlen; r++)
+		printf ("%02x ", in[r]);
+	printf ("\n");
+
 	memset(&senv, 0, sizeof(senv));
 
 	/* Card driver should have the access to supported algorithms from 'tokenInfo'. So that  
