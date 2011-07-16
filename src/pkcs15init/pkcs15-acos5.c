@@ -86,7 +86,6 @@ acos5_read_confmem(sc_card_t *card, int offset, u8 *data, int len)
 	struct sc_context *ctx = card->ctx;
 	sc_apdu_t apdu;
 	int i;
-	int r;
 
 	sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT,
 		       0xb0, /* read binary */
@@ -96,8 +95,7 @@ acos5_read_confmem(sc_card_t *card, int offset, u8 *data, int len)
 	apdu.resp = data;
 	apdu.resplen = len;
 	apdu.le = apdu.resplen;
-	r = sc_transmit_apdu(card, &apdu);
-	return(r);
+	return sc_transmit_apdu(card, &apdu);
 }
 
 static int
@@ -106,7 +104,6 @@ acos5_write_confmem(sc_card_t *card, int offset, u8 *data, int len)
 	struct sc_context *ctx = card->ctx;
 	sc_apdu_t apdu;
 	int i;
-	int r;
 
 	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
 		       0xd6, /* update binary */
@@ -115,8 +112,7 @@ acos5_write_confmem(sc_card_t *card, int offset, u8 *data, int len)
 	apdu.data = data;
 	apdu.datalen = len;
 	apdu.lc = len;
-	r = sc_transmit_apdu(card, &apdu);
-	return(r);
+	return sc_transmit_apdu(card, &apdu);
 }
 
 static u8 init_3080[] = {
@@ -143,11 +139,12 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	int dlen;
 	int i;
 
+	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
+
 	/* if MF can be selected, nothing further to do */
 	sc_format_path("3F00", &path);
-	if (sc_select_file(p15card->card, &path, NULL) == 0) {
-		printf("select ok\n");
-		return(0);
+	if (sc_select_file(card, &path, NULL) == 0) {
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 	}
 
 	/* see if User EEPROM Limit is set, if not, fixup the conf block */
@@ -170,10 +167,10 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	apdu.lc = dlen;
 	r = sc_transmit_apdu(card, &apdu);
 	if (r == 0) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
 			 "card erasing enabled\n");
 	} else {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
 			 "card may not be erasable in the future\n");
 	}
 
@@ -196,9 +193,9 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	apdu.datalen = dlen;
 	apdu.lc = dlen;
 	r = sc_transmit_apdu(card, &apdu);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "Cannot create MF");
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "Cannot create MF");
 
-	return(0);
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 /*
@@ -214,7 +211,8 @@ static int
 acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 		 struct sc_file *df)
 {
-	struct sc_context *ctx = p15card->card->ctx;
+	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
 	int r;
 	u8 sec_attr[100], *p;
 	int sec_attr_len;
@@ -237,17 +235,17 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	sec_attr_len = p - sec_attr;
 	sc_file_set_sec_attr(df, sec_attr,  sec_attr_len);
 
-	r = sc_create_file(p15card->card, df);
+	r = sc_create_file(card, df);
 	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
 		r = 0;
 	LOG_TEST_RET(ctx, r, "can't create appdir");
 	
-	r = sc_select_file(p15card->card, &df->path, NULL);
+	r = sc_select_file(card, &df->path, NULL);
 	LOG_TEST_RET(ctx, r, "can't select appdir");
 
 	/* now create the SE file within the appdir */
 	r = sc_profile_get_file(profile, "sefile", &sefile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
 		    "Cannot get sefile from profile");
 
 	p = type_attr;
@@ -275,12 +273,12 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	type_attr_len = p - type_attr;
 	sc_file_set_type_attr(sefile, type_attr, type_attr_len);
 	
-	r = sc_create_file(p15card->card, sefile);
+	r = sc_create_file(card, sefile);
 	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
 		r = 0;
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
 
-	return r;
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 static int
@@ -291,8 +289,8 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	/* df is for the appdir */
 	/* ideas from pkcs15-setcos.c */
 
-	struct sc_context *ctx = p15card->card->ctx;
 	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
 	sc_pkcs15_auth_info_t *auth_info
 		= (sc_pkcs15_auth_info_t *) pin_obj->data;
 	int r;
@@ -306,18 +304,16 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	int type_attr_len;
 	int refnum;
 
+	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
+
 	r = sc_profile_get_file(profile, "pinfile", &pinfile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
 		    "Cannot get pinfile from profile");
 
 	r = sc_select_file(card, &pinfile->path, NULL);
 	if (r == SC_ERROR_FILE_NOT_FOUND) {
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "creating pinfile");
 		
-		r = sc_profile_get_file(profile, "pinfile", &pinfile);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-			    "Cannot get pinfile from profile");
-
 		p = type_attr;
 		*p++ = 0x82;
 		*p++ = 0x05;
@@ -334,7 +330,7 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		type_attr_len = p - type_attr;
 		sc_file_set_type_attr(pinfile, type_attr, type_attr_len);
 	
-		r = sc_create_file(p15card->card, pinfile);
+		r = sc_create_file(card, pinfile);
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
 			    "pinfile creation failed");
 
@@ -352,14 +348,14 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	if (pin_len < 1 || pin_len > 16) {
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "invalid pin length");
-		return(SC_ERROR_INTERNAL);
+		return SC_ERROR_INTERNAL;
 	}
 
 	refnum = auth_info->attrs.pin.reference;
 	if (refnum < 1 || refnum > 4) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
 			 "pin reference num must be 1..4; got %d", refnum);
-		return(SC_ERROR_INTERNAL);
+		return SC_ERROR_INTERNAL;
 	}
 
 	/* manual section 3.1.1 PIN Data Structure */
@@ -380,13 +376,15 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	
 	sc_file_free(pinfile); /* XXX leaked on error returns above */
 
-	return 0;
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 static int
 acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		 sc_pkcs15_object_t *obj)
 {
+	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
 	sc_pkcs15_prkey_info_t *key_info = (sc_pkcs15_prkey_info_t *) obj->data;
 	struct sc_file	*keyfile = NULL;
 	size_t		bytes, mod_len, exp_len, prv_len, pub_len;
@@ -395,16 +393,19 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	u8 sec_attr[100], *p;
 	int sec_attr_len;
 
-	SC_FUNC_CALLED(p15card->card->ctx, SC_LOG_DEBUG_VERBOSE);
+	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
 	/* The caller is supposed to have chosen a key file path for us */
-	if (key_info->path.len == 0 || key_info->modulus_length == 0)
-		return SC_ERROR_INVALID_ARGUMENTS;
+	if (key_info->path.len == 0 || key_info->modulus_length == 0) {
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL,
+			       SC_ERROR_INVALID_ARGUMENTS);
+	}
 
 	/* Get the file we're supposed to create */
 	r = sc_profile_get_file_by_path(profile, &key_info->path, &keyfile);
-	if (r < 0)
-		return r;
+	if (r < 0) {
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, r);
+	}
 
 	/* 
 	 * private key files have a 5 byte header, then 
@@ -415,7 +416,7 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	if ((r = sc_pkcs15init_fixup_file(profile, p15card, keyfile)) < 0)
 		goto done;
 
-	r = sc_select_file(p15card->card, &keyfile->path, &found);
+	r = sc_select_file(card, &keyfile->path, &found);
 	if (r == SC_ERROR_FILE_NOT_FOUND) {
 		/*
 		 * TODO: remove this block because sefile
@@ -431,8 +432,7 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 		r = sc_pkcs15init_create_file(profile, p15card, keyfile);
 		if (r >= 0)
-			r = sc_select_file(p15card->card, &keyfile->path,
-					   &found);
+			r = sc_select_file(card, &keyfile->path, &found);
 	}
 
 	if (r >= 0)
@@ -446,7 +446,7 @@ done:
 	if (keyfile)
 		sc_file_free(keyfile);
 
-	SC_FUNC_RETURN(p15card->card->ctx, SC_LOG_DEBUG_NORMAL, r);
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
 /* set the Digital Signature Template, sect 4.2.6 */
@@ -483,7 +483,7 @@ acos5_set_dst(sc_card_t *card, int file_id, int qual_byte)
 	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
 	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
 		return SC_ERROR_INTERNAL;
-	return (0);
+	return 0;
 }
 
 static int
@@ -491,8 +491,8 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		   struct sc_pkcs15_object *object, 
 		   struct sc_pkcs15_pubkey *pubkey)
 {
-	struct sc_context *ctx = p15card->card->ctx;
 	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
 	struct sc_pkcs15_prkey_info *key_info
 		= (struct sc_pkcs15_prkey_info *)object->data;
 	struct sc_file *prkey_file = NULL, *pukey_file = NULL;
@@ -506,13 +506,13 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	int sec_attr_len;
 	int pukey_raw_size;
 	u8 pukey_raw[5 + 8 + 2048 / 8];
-	u8 *exponent_raw;
+	u8 *exponent_raw, exponent[8];
+	u8 modulus[256]; /* up to 2048 bit keys */
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
 	/* Check that the card supports the requested modulus length */
-	if (sc_card_find_rsa_alg(p15card->card,
-				 key_info->modulus_length) == NULL) {
+	if (sc_card_find_rsa_alg(card, key_info->modulus_length) == NULL) {
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL,
 			    SC_ERROR_INVALID_ARGUMENTS, "Unsupported key size");
 	}
@@ -528,9 +528,10 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	/* make public key path, copying low byte of file id from private key */
 	if (sc_profile_get_file(profile,
 				"template-hw-public-key", &pukey_file) < 0) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
 			 "template-hw-public-key missing from profile");
-		return SC_ERROR_NOT_SUPPORTED;
+		SC_FUNC_RETURN (ctx, SC_LOG_DEBUG_VERBOSE, 
+				SC_ERROR_NOT_SUPPORTED);
 	}
 	pukey_path = &pukey_file->path;
 	len = pukey_path->len;
@@ -591,12 +592,13 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		    "error selecting new public key");
 
 	if (pukey_raw_size > sizeof pukey_raw)
-		return SC_ERROR_INTERNAL;
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+
 	len = sc_read_binary(card, 0, pukey_raw, pukey_raw_size, 0);
 	if (len != pukey_raw_size) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
-			 "error reading raw public key");
-		return SC_ERROR_INTERNAL;
+		sc_debug (ctx, SC_LOG_DEBUG_NORMAL,
+			  "error reading raw public key");
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
 	}
 	
 	pubkey->algorithm = SC_ALGORITHM_RSA;
@@ -612,19 +614,18 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 		if (exponent_raw[len - 1])
 			break;
 	}
-	if ((p = malloc(len)) == NULL) /* TODO: leaked */
-		return SC_ERROR_OUT_OF_MEMORY;
-	memcpy (p, exponent_raw, len);
-	sc_mem_reverse(p, len);
+	memcpy (exponent, exponent_raw, len);
+	sc_mem_reverse(exponent, len);
+	pubkey->u.rsa.exponent.data = exponent;
 	pubkey->u.rsa.exponent.len = len;
-	pubkey->u.rsa.exponent.data = p;
 
 	len = key_info->modulus_length / 8;
-	if ((p = malloc(len)) == NULL) /* TODO: leaked */
-		return SC_ERROR_OUT_OF_MEMORY;
-	memcpy(p, pukey_raw + 5 + 8, len);
+	if (len > sizeof modulus)
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
+	memcpy(modulus, pukey_raw + 5 + 8, len);
+	sc_mem_reverse (modulus, len);
+	pubkey->u.rsa.modulus.data = modulus;
 	pubkey->u.rsa.modulus.len = len;
-	pubkey->u.rsa.modulus.data = p;
 
 	sc_file_free(prkey_file);
 	sc_file_free(pukey_file);
@@ -634,35 +635,11 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 
 
 static int
-acos5_do_authenticate(sc_profile_t *profile,
-		      sc_pkcs15_card_t *p15card, 
-		      const sc_path_t *path, int op)
-{
-	int r;
-	sc_file_t *prkey = NULL;
-	r = sc_profile_get_file_by_path(profile, path, &prkey);
-	if (r != SC_SUCCESS) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL,
-			 "unable to find file in profile");
-		return r;
-	}
-
-	r = sc_pkcs15init_authenticate(profile, p15card, prkey, op);
-	sc_file_free(prkey);
-	if (r != SC_SUCCESS) {
-		sc_debug(p15card->card->ctx, SC_LOG_DEBUG_NORMAL,
-			 "unable to authenticate");
-		return r;
-	}
-	return SC_SUCCESS;	
-}
-
-static int
 acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		sc_pkcs15_object_t *obj, sc_pkcs15_prkey_t *key)
 {
-	struct sc_context *ctx = p15card->card->ctx;
 	struct sc_card *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
 	sc_pkcs15_prkey_info_t *kinfo = (sc_pkcs15_prkey_info_t *) obj->data;
 	int       r;
 	sc_cardctl_acos5_store_key_t	skdata;
@@ -676,25 +653,25 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	if (obj->type != SC_PKCS15_TYPE_PRKEY_RSA) {
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "only RSA is supported");
-		return SC_ERROR_NOT_SUPPORTED;
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, 
+			       SC_ERROR_NOT_SUPPORTED);
 	}
 	rsakey = &key->u.rsa;
 
 	/* select the rsa private key */
 	prkey_path = &kinfo->path;
 	r = sc_select_file(card, prkey_path, &prkey_file);
-	if (r != SC_SUCCESS) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
-			 "unable to select rsa key file");
-		return r;
-	}
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "unable to select rsa key file");
 
 	/* make public key path, copying low byte of file id from private key */
-	if (sc_profile_get_file(profile, "template-hw-public-key",
-				&pukey_file) < 0) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+	r = sc_profile_get_file(profile, "template-hw-public-key",
+				&pukey_file);
+	if (r < 0) {
+		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
 			 "template-hw-public-key missing from profile");
-		return SC_ERROR_NOT_SUPPORTED;
+		SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_VERBOSE,
+			       SC_ERROR_NOT_SUPPORTED);
 	}
 	pukey_path = &pukey_file->path;
 	len = pukey_path->len;
@@ -725,10 +702,7 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	skdata.dmq1_len = rsakey->dmq1.len;
 
 	r = sc_card_ctl(card, SC_CARDCTL_ACOS5_STORE_KEY, &skdata);
-	if (r != SC_SUCCESS) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "unable to store key data");
-		return r;
-	}
+	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "unable to store key data");
 	
 	sc_file_free(prkey_file);
 	sc_file_free(pukey_file);
@@ -754,10 +728,12 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 	}
 
 	/*
-	 * still need to do acos5_finish_clear(card), but 
+	 * should do acos5_finish_clear(card) here, but 
 	 * it appears the card needs to be reset first.  so,
 	 * I put it in acos5_init_card, so it will be
 	 * run when the user next runs pkcs15-init -C
+	 *
+	 * TODO: is there a way to reset the card here?
 	 */
 
 	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
