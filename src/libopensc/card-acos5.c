@@ -125,13 +125,6 @@ static int acos5_select_file(sc_card_t * card,
 	}
 }
 
-static int acos5_restore_security_env(sc_card_t *card, int se_num)
-{
-	SC_FUNC_CALLED(card->ctx, SC_LOG_DEBUG_VERBOSE);
-	SC_FUNC_RETURN(card->ctx, SC_LOG_DEBUG_NORMAL, SC_ERROR_INTERNAL);
-	
-}
-
 static int acos5_set_security_env(sc_card_t *card,
 				    const sc_security_env_t *env,
 				    int se_num)
@@ -691,7 +684,7 @@ static struct sc_card_driver *sc_get_driver(void)
 	// get_challenge
 	// verify
 	// logout
-	acos5_ops.restore_security_env = acos5_restore_security_env;
+	// restore_security_env
 	acos5_ops.set_security_env = acos5_set_security_env;
 	acos5_ops.decipher = acos5_decipher;
 	acos5_ops.compute_signature = acos5_compute_signature;
