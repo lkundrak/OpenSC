@@ -496,8 +496,8 @@ static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
 		r = (*iso7816_pin_cmd_orig)(card, data, tries_left);
 		break;
 	default:
-		sc_debug (card->ctx, SC_LOG_DEBUG_NORMAL, "acos5_pin_cmd: can't handle cmd");
-		r = SC_ERROR_INTERNAL;
+		sc_debug (card->ctx, SC_LOG_DEBUG_NORMAL, "acos5_pin_cmd: can't handle cmd %d", data->cmd);
+		r = SC_ERROR_NOT_SUPPORTED;
 		break;
 	}
 	return (r);
