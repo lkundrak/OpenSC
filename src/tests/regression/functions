@@ -140,7 +140,9 @@ function fail {
 		ls -a $p15temp
 	) >&4
 	test_failed=true
-	trap ""
+
+	# cancel the atexit trap, portably
+	trap true 0 1 2 13 15
 	exit 1
 }
 
@@ -173,7 +175,7 @@ function run_check_status {
 	if ! "$@" 2> $terrlog; then
 		if [ -n "$suppress_error_msg" ] &&
 		   grep "$suppress_error_msg" $terrlog &> /dev/null ; then
-			msg "The card does not supported the request feature."
+			msg "The card does not support the request feature."
 			unset suppress_error_msg
 			return 1
 		else
