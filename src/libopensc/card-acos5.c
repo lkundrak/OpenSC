@@ -360,7 +360,43 @@ static int acos5_get_serialnr(sc_card_t * card, sc_serial_number_t * serial)
 	return SC_SUCCESS;
 }
 
-int
+static int
+acos5_put_key (sc_card_t *card, u8 *data, int datalen)
+{
+	int off, togo, thistime;
+	int r;
+	sc_apdu_t apdu;
+
+	off = 0;
+	togo = datalen;
+	while (togo > 0) {
+		thistime = togo;
+		if (thistime > card->max_send_size)
+			thistime = card->max_send_size;
+
+		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda,
+			       (off >> 8) & 0xff,
+			       off & 0xff);
+		apdu.cla = 0x80;
+		if (thistime < togo)
+			apdu.cla = 0x90;
+		apdu.lc = thistime;
+		apdu.datalen = thistime;
+		apdu.data = data + off;
+		r = sc_transmit_apdu(card, &apdu);
+		SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r,
+			    "APDU transmit failed");
+		if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+			return SC_ERROR_INTERNAL;
+		
+		togo -= thistime;
+		off += thistime;
+	}
+
+	return 0;
+}
+
+static int
 acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 {
 	struct sc_context *ctx = card->ctx;
@@ -373,8 +409,8 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	u8 pukey_raw[5 + 8 + 2048 / 8];
 
 	int need;
-	u8 exponent_for_card[8];
-	int len;
+	u8 exponent_be8[8];
+	int prlen, pulen;
 	sc_apdu_t apdu;
 	int r;
 	sc_file_t *file;
@@ -385,8 +421,8 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 
 	if (stkey->exponent_len > 8)
 		return SC_ERROR_INTERNAL;
-	memset(exponent_for_card, 0, 8);
-	memcpy(exponent_for_card + 8 - stkey->exponent_len,
+	memset(exponent_be8, 0, 8);
+	memcpy(exponent_be8 + 8 - stkey->exponent_len,
 	       stkey->exponent, stkey->exponent_len);
 
 	crt_len = stkey->modulus_len / 2;
@@ -407,108 +443,82 @@ acos5_store_key (sc_card_t *card, sc_cardctl_acos5_store_key_t *stkey)
 	if (need > sizeof prkey_raw)
 		return SC_ERROR_INTERNAL;
 		
-	/* this code doesn't handle 2048 bit keys */
-	len = 0;
-	prkey_raw[len++] = 7; /* key type */
-	prkey_raw[len++] = stkey->modulus_len / 16; /* size code */
+	prlen = 0;
+	prkey_raw[prlen++] = 7; /* key type */
+	prkey_raw[prlen++] = stkey->modulus_len / 16; /* size code */
 
-	prkey_raw[len++] = (stkey->pukey_file->id >> 8) & 0xff;
-	prkey_raw[len++] = stkey->pukey_file->id & 0xff;
-	prkey_raw[len++] = 1; /* key complete */
-	memcpy(prkey_raw + len, stkey->p, stkey->p_len);
-	sc_mem_reverse(prkey_raw + len, stkey->p_len);
-	len += stkey->p_len;
-	memcpy(prkey_raw + len, stkey->q, stkey->q_len);
-	sc_mem_reverse(prkey_raw + len, stkey->q_len);
-	len += stkey->q_len;
-	memcpy(prkey_raw + len, stkey->dmp1, stkey->dmp1_len);
-	sc_mem_reverse(prkey_raw + len, stkey->dmp1_len);
-	len += stkey->dmp1_len;
-	memcpy(prkey_raw + len, stkey->dmq1, stkey->dmq1_len);
-	sc_mem_reverse(prkey_raw + len, stkey->dmq1_len);
-	len += stkey->dmq1_len;
-	memcpy(prkey_raw + len, stkey->iqmp, stkey->iqmp_len);
-	sc_mem_reverse(prkey_raw + len, stkey->iqmp_len);
-	len += stkey->iqmp_len;
+	prkey_raw[prlen++] = (stkey->pukey_file->id >> 8) & 0xff;
+	prkey_raw[prlen++] = stkey->pukey_file->id & 0xff;
+	prkey_raw[prlen++] = 0;
+	memcpy(prkey_raw + prlen, stkey->p, stkey->p_len);
+	sc_mem_reverse(prkey_raw + prlen, stkey->p_len);
+	prlen += stkey->p_len;
+	memcpy(prkey_raw + prlen, stkey->q, stkey->q_len);
+	sc_mem_reverse(prkey_raw + prlen, stkey->q_len);
+	prlen += stkey->q_len;
+	memcpy(prkey_raw + prlen, stkey->dmp1, stkey->dmp1_len);
+	sc_mem_reverse(prkey_raw + prlen, stkey->dmp1_len);
+	prlen += stkey->dmp1_len;
+	memcpy(prkey_raw + prlen, stkey->dmq1, stkey->dmq1_len);
+	sc_mem_reverse(prkey_raw + prlen, stkey->dmq1_len);
+	prlen += stkey->dmq1_len;
+	memcpy(prkey_raw + prlen, stkey->iqmp, stkey->iqmp_len);
+	sc_mem_reverse(prkey_raw + prlen, stkey->iqmp_len);
+	prlen += stkey->iqmp_len;
 
-	for (pass = 0; pass < 2; pass++) {
-		if (pass == 0) {
-			/*
-			 * on the first time around, the caller
-			 * has already selected the prkey file
-			 */
-		} else {
-			r = sc_select_file(card, stkey->prkey_path, NULL);
-			SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-				    "error selecting prkey");
-		}
+	acos5_put_key (card, prkey_raw, prlen);
 
-		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, 0);
-		apdu.cla |= 0x80;
-		apdu.lc = len;
-		apdu.datalen = len;
-		apdu.data = prkey_raw;
-		apdu.flags |= SC_APDU_FLAGS_CHAINING;
-		r = sc_transmit_apdu(card, &apdu);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-			    "APDU transmit failed");
-		if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
-			return SC_ERROR_INTERNAL;
+	/* now create the public key file */
+	need = 5 + 8 + stkey->modulus_len;
+	if (need > sizeof pukey_raw)
+		return SC_ERROR_INTERNAL;
 
-		/* now do pubkey file */
-		need = 5 + 8 + stkey->modulus_len;
-		if (need > sizeof pukey_raw)
-			return SC_ERROR_INTERNAL;
+	pulen = 0;
+	pukey_raw[pulen++] = 0; /* public */
+	pukey_raw[pulen++] = stkey->modulus_len / 16;
+	pukey_raw[pulen++] = (stkey->prkey_file_id >> 8) & 0xff;
+	pukey_raw[pulen++] = stkey->prkey_file_id & 0xff;
+	pukey_raw[pulen++] = 0;
+	memcpy(pukey_raw + pulen, exponent_be8, 8);
+	sc_mem_reverse(pukey_raw + pulen, 8);
+	pulen += 8;
+	memcpy(pukey_raw + pulen, stkey->modulus, stkey->modulus_len);
+	sc_mem_reverse(pukey_raw + pulen, stkey->modulus_len);
+	pulen += stkey->modulus_len;
 
-		len = 0;
-		pukey_raw[len++] = 0; /* public */
-		pukey_raw[len++] = stkey->modulus_len / 16;
-		pukey_raw[len++] = (stkey->prkey_file_id >> 8) & 0xff;
-		pukey_raw[len++] = stkey->prkey_file_id & 0xff;
-		pukey_raw[len++] = 1; /* key complete */
-		memcpy(pukey_raw + len, exponent_for_card, 8);
-		sc_mem_reverse(pukey_raw + len, 8);
-		len += 8;
-		memcpy(pukey_raw + len, stkey->modulus, stkey->modulus_len);
-		sc_mem_reverse(pukey_raw + len, stkey->modulus_len);
-		len += stkey->modulus_len;
+	sc_file_dup(&file, stkey->pukey_file);
+	file->size = pulen;
 
-		sc_file_dup(&file, stkey->pukey_file);
-		file->size = len;
+	p = sec_attr;
+	*p++ = 0x8d;
+	*p++ = 2;
+	*p++ = (stkey->se_file_id >> 8) & 0xff;
+	*p++ = stkey->se_file_id & 0xff;
+	sec_attr_len = p - sec_attr;
+	sc_file_set_sec_attr(file, sec_attr,  sec_attr_len);
 
-		p = sec_attr;
-		*p++ = 0x8d;
-		*p++ = 2;
-		*p++ = (stkey->se_file_id >> 8) & 0xff;
-		*p++ = stkey->se_file_id & 0xff;
-		sec_attr_len = p - sec_attr;
-		sc_file_set_sec_attr(file, sec_attr,  sec_attr_len);
+	r = sc_create_file(card, file);
+	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
+		r = 0;
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't make pubkey file");
 
-		r = sc_create_file(card, file);
-		if (r == SC_ERROR_FILE_ALREADY_EXISTS)
-			r = 0;
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-			    "can't make pubkey file");
+	r = sc_select_file(card, &file->path, NULL);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't select pubkey file");
 
-		r = sc_select_file(card, &file->path, NULL);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-			    "can't select pubkey file");
+	sc_file_free(file);
+	file = NULL;
 
-		sc_file_free(file);
-		file = NULL;
+	acos5_put_key (card, pukey_raw, pulen);
 
-		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda, 0, 0);
-		apdu.cla |= 0x80;
-		apdu.lc = len;
-		apdu.datalen = len;
-		apdu.data = pukey_raw;
-		apdu.flags |= SC_APDU_FLAGS_CHAINING;
-		r = sc_transmit_apdu(card, &apdu);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-			    "APDU transmit failed");
-		if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
-			return SC_ERROR_INTERNAL;
-	}
+	/*
+	 * now that the public key is in place, we store the
+	 * private key again, and the card will automatically
+	 * validate the compatibility of the two parts,
+	 * and set the internal key validated flag
+	 */
+	r = sc_select_file(card, stkey->prkey_path, NULL);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error selecting prkey");
+	acos5_put_key (card, prkey_raw, prlen);
 	
 	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, 0);
 }
