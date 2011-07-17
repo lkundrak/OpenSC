@@ -658,38 +658,66 @@ static int acos5_construct_fci(sc_card_t *card, const sc_file_t *file,
 	return 0;
 }
 
-static int (*iso7816_pin_cmd_orig)(sc_card_t *card,
-				   struct sc_pin_cmd_data *data,
-				   int *tries_left);
-
 static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
 			 int *tries_left)
 {
+	struct sc_context *ctx = card->ctx;
 	sc_apdu_t apdu;
 	struct sc_path path;
-	struct sc_pin_cmd_pin *pin;
+	struct sc_pin_cmd_pin *pin1, *pin2;
 	int r;
+	u8 xbuf[100];
+	int xlen;
+	int puk_reference;
 	
 	switch (data->cmd) {
 	case SC_PIN_CMD_VERIFY:
-		pin = &data->pin1;
+		pin1 = &data->pin1;
 		
 		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
 			       0x20, 0x00, data->pin_reference | 0x80);
-		apdu.lc = pin->len;
-		apdu.datalen = pin->len;
-		apdu.data = pin->data;
+		apdu.lc = pin1->len;
+		apdu.datalen = pin1->len;
+		apdu.data = pin1->data;
+		r = sc_transmit_apdu (card, &apdu);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+			    "APDU transmit failed");
+		r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+		if (r == SC_ERROR_PIN_CODE_INCORRECT)
+			*tries_left = apdu.sw2 & 0xf;
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
+			    "pin verify failed");
+		return SC_SUCCESS;
+		
+	case SC_PIN_CMD_CHANGE:
+		pin1 = &data->pin1;
+		pin2 = &data->pin2;
 
-		data->apdu = &apdu;
-		r = (*iso7816_pin_cmd_orig)(card, data, tries_left);
-		break;
-	default:
-		sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL,
-			 "acos5_pin_cmd: can't handle cmd %d", data->cmd);
-		r = SC_ERROR_NOT_SUPPORTED;
-		break;
+		xlen = pin1->len + pin2->len;
+		if (xlen > sizeof xbuf)
+			return SC_ERROR_INTERNAL;
+		memcpy (xbuf, pin1->data, pin1->len);
+		memcpy (xbuf + pin1->len, pin2->data, pin2->len);
+
+		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT,
+			       0x24, 0x00, data->pin_reference | 0x80);
+		apdu.lc = xlen;
+		apdu.datalen = xlen;
+		apdu.data = xbuf;
+		r = sc_transmit_apdu (card, &apdu);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+			    "APDU transmit failed");
+		r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+		if (r == SC_ERROR_PIN_CODE_INCORRECT)
+			*tries_left = apdu.sw2 & 0xf;
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
+			    "couldn't store new pin");
+		return SC_SUCCESS;
 	}
-	return r;
+
+	sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL,
+		 "acos5_pin_cmd: can't handle cmd %d", data->cmd);
+	return SC_ERROR_NOT_SUPPORTED;
 }
 
 static struct sc_card_driver *sc_get_driver(void)
@@ -729,8 +757,6 @@ static struct sc_card_driver *sc_get_driver(void)
 	acos5_ops.card_ctl = acos5_card_ctl;
 	// process_fci
 	acos5_ops.construct_fci = acos5_construct_fci;
-
-	iso7816_pin_cmd_orig = acos5_ops.pin_cmd;
 	acos5_ops.pin_cmd = acos5_pin_cmd;
 	// get_data
 	// put_data
