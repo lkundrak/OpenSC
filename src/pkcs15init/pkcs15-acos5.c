@@ -41,6 +41,8 @@
 /* manual secction 2.2 */
 #define ACOS5_LIFE_CYCLE_FUSE 0x3088
 
+#define ACOS5_MAX_PINS 10 /* not fixed by card ... ok to change */
+
 #define CONFMEM_BASE 0x3080
 #define CONFMEM_SIZE (0x30d0 - CONFMEM_BASE)
 
@@ -254,7 +256,7 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	*p++ = 0x01; /* dcb: unused in acos5 */
 	*p++ = 0x00; /* must be 0 */
 	*p++ = 0x11; /* mrl: max record len */
-	*p++ = 0x04; /* nor: number of records */
+	*p++ = ACOS5_MAX_PINS; /* nor: number of records */
 
 	/* Security Attributes Compact */
 	*p++ = 0x8c; /* allow everything for now */
@@ -277,6 +279,26 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
 
 	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
+}
+
+static int
+acos5_select_pin_reference(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
+			   sc_pkcs15_auth_info_t *auth_info)
+{
+	if (auth_info->attrs.pin.flags & SC_PKCS15_PIN_FLAG_SO_PIN)
+		return SC_SUCCESS;
+
+	if (auth_info->attrs.pin.reference <= 0)
+		auth_info->attrs.pin.reference = 1;
+
+	/* odd numbers are used for puk's */
+	if ((auth_info->attrs.pin.reference & 1) == 0)
+		auth_info->attrs.pin.reference++;
+
+	if (auth_info->attrs.pin.reference >= ACOS5_MAX_PINS)
+		return SC_ERROR_TOO_MANY_OBJECTS;
+
+        return SC_SUCCESS;
 }
 
 static int
@@ -751,7 +773,7 @@ static struct sc_pkcs15init_operations sc_pkcs15init_acos5_operations = {
 	acos5_init_card, /* init_card */
 	acos5_create_dir, /* create_dir (required) */
 	NULL, /* create_domain */
-	NULL, /* select_pin_reference */
+	acos5_select_pin_reference, /* select_pin_reference */
 	acos5_create_pin, /* create_pin (required) */
 	NULL, /* select_key_reference */
 	acos5_create_key, /* create_key */
