@@ -256,7 +256,7 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	*p++ = 0x01; /* dcb: unused in acos5 */
 	*p++ = 0x00; /* must be 0 */
 	*p++ = 0x11; /* mrl: max record len */
-	*p++ = ACOS5_MAX_PINS; /* nor: number of records */
+	*p++ = 0x04; /* nor: number of records */
 
 	/* Security Attributes Compact */
 	*p++ = 0x8c; /* allow everything for now */
@@ -291,7 +291,7 @@ acos5_select_pin_reference(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	if (auth_info->attrs.pin.reference <= 0)
 		auth_info->attrs.pin.reference = 1;
 
-	/* odd numbers are used for puk's */
+	/* skip even numbers, which are used for puk's */
 	if ((auth_info->attrs.pin.reference & 1) == 0)
 		auth_info->attrs.pin.reference++;
 
@@ -341,7 +341,7 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		*p++ = 0x01; /* dcb: unused in acos5 */
 		*p++ = 0x00; /* must be 0 */
 		*p++ = 18;   /* mrl: max record len */
-		*p++ = 4;    /* nor: number of records */
+		*p++ = ACOS5_MAX_PINS; /* nor: number of records */
 
 		*p++ = 0x88; /* set sfi to 1 */
 		*p++ = 0x01;
@@ -372,9 +372,9 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	}
 
 	refnum = auth_info->attrs.pin.reference;
-	if (refnum < 1 || refnum > 4) {
+	if (refnum < 1 || refnum > ACOS5_MAX_PINS) {
 		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
-			 "pin reference num must be 1..4; got %d", refnum);
+			 "pin reference num must be 1..%d; got %d", ACOS5_MAX_PINS, refnum);
 		return SC_ERROR_INTERNAL;
 	}
 
