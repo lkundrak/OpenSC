@@ -417,8 +417,8 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	r = sc_select_file(card, &keyfile->path, &found);
 	if (r == SC_ERROR_FILE_NOT_FOUND) {
 		/*
-		 * TODO: remove this block because sefile
-		 * is now created in acos5_create_dir
+		 * TODO: figure out why this is
+		 * still called during first store key
 		 */
 		p = sec_attr;
 		*p++ = 0x8d;
