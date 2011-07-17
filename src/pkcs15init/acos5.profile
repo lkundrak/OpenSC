@@ -41,20 +41,14 @@ option default {
     }
 }
 
-# Define reasonable limits for PINs and PUK
-# Note that we do not set a file path or reference
-# here; that is done dynamically.
 PIN user-pin {
     reference  = 1;
-    min-length = 4;
-    max-length = 8;
     attempts   = 3;
     flags      = initialized, needs-padding;
 }
 
 PIN user-puk {
-    min-length = 4;
-    max-length = 8;
+    reference  = 2;
     attempts   = 10;
     flags      = needs-padding;
 }
@@ -62,17 +56,14 @@ PIN user-puk {
 PIN so-pin {
     reference  = 3;
     auth-id    = FF;
-    min-length = 4;
-    max-length = 8;
     attempts   = 3;
     flags      = initialized, soPin, needs-padding;
 }
 
 PIN so-puk {
-    min-length = 4;
-    max-length = 8;
+    reference  = 4;
     attempts   = 10;
-   flags       = needs-padding;
+    flags      = needs-padding;
 }
 
 # Additional filesystem info.
