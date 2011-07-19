@@ -744,6 +744,41 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, 0);
 }
 
+static int
+acos5_put_key (sc_card_t *card, u8 *data, int datalen)
+{
+	int off, togo, thistime;
+	int r;
+	sc_apdu_t apdu;
+
+	off = 0;
+	togo = datalen;
+	while (togo > 0) {
+		thistime = togo;
+		if (thistime > card->max_send_size)
+			thistime = card->max_send_size;
+
+		sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xda,
+			       (off >> 8) & 0xff,
+			       off & 0xff);
+		apdu.cla = 0x80;
+		if (thistime < togo)
+			apdu.cla = 0x90;
+		apdu.lc = thistime;
+		apdu.datalen = thistime;
+		apdu.data = data + off;
+		r = sc_transmit_apdu(card, &apdu);
+		SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r,
+			    "APDU transmit failed");
+		if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
+			return SC_ERROR_INTERNAL;
+		
+		togo -= thistime;
+		off += thistime;
+	}
+
+	return 0;
+}
 
 static int
 acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
@@ -753,12 +788,25 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	struct sc_context *ctx = card->ctx;
 	sc_pkcs15_prkey_info_t *kinfo = (sc_pkcs15_prkey_info_t *) obj->data;
 	int       r;
-	sc_cardctl_acos5_store_key_t	skdata;
 	struct sc_pkcs15_prkey_rsa *rsakey;
 	sc_path_t *pukey_path;
 	int len;
 	struct sc_path *prkey_path;
 	struct sc_file *prkey_file, *pukey_file;
+
+	/* room for header plus 5 CRT params for 2048 bit key */
+	u8 prkey_raw[5 + 5 * 2048 / 8 / 2];
+
+	/* room for header, 8 byte exponent, and modulus */
+	u8 pukey_raw[5 + 8 + 2048 / 8];
+
+	int need;
+	u8 exponent_be8[8];
+	int prlen, pulen;
+	sc_apdu_t apdu;
+	u8 sec_attr[100], *p;
+	int sec_attr_len;
+	int crt_len;
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
@@ -773,7 +821,7 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	prkey_path = &kinfo->path;
 	r = sc_select_file(card, prkey_path, &prkey_file);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-		    "unable to select rsa key file");
+		    "unable to select rsa private key file");
 
 	/* make public key path, copying low byte of file id from private key */
 	r = sc_profile_get_file(profile, "template-hw-public-key",
@@ -790,30 +838,102 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	pukey_file->id = (pukey_path->value[len - 2] << 8)
 		| pukey_path->value[len - 1];
 
-	memset(&skdata, 0, sizeof skdata);
-	skdata.prkey_file_id = prkey_file->id;
-	skdata.prkey_path = prkey_path;
-	skdata.pukey_file = pukey_file;
-	skdata.se_file_id = ACOS5_MAIN_SE_FILE;
-	skdata.modulus = rsakey->modulus.data;
-	skdata.modulus_len = rsakey->modulus.len;
-	skdata.exponent = rsakey->exponent.data;
-	skdata.exponent_len = rsakey->exponent.len;
-	skdata.d = rsakey->d.data;
-	skdata.d_len = rsakey->d.len;
-	skdata.p = rsakey->p.data;
-	skdata.p_len = rsakey->p.len;
-	skdata.q = rsakey->q.data;
-	skdata.q_len = rsakey->q.len;
-	skdata.iqmp = rsakey->iqmp.data;
-	skdata.iqmp_len = rsakey->iqmp.len;
-	skdata.dmp1 = rsakey->dmp1.data;
-	skdata.dmp1_len = rsakey->dmp1.len;
-	skdata.dmq1 = rsakey->dmq1.data;
-	skdata.dmq1_len = rsakey->dmq1.len;
+	if (rsakey->exponent.len > 8)
+		return SC_ERROR_INTERNAL;
+	memset(exponent_be8, 0, 8);
+	memcpy(exponent_be8 + 8 - rsakey->exponent.len,
+	       rsakey->exponent.data, rsakey->exponent.len);
 
-	r = sc_card_ctl(card, SC_CARDCTL_ACOS5_STORE_KEY, &skdata);
-	SC_TEST_RET (ctx, SC_LOG_DEBUG_NORMAL, r, "unable to store key data");
+	crt_len = rsakey->modulus.len / 2;
+	if (rsakey->p.len != crt_len
+	    || rsakey->q.len != crt_len
+	    || rsakey->dmp1.len != crt_len
+	    || rsakey->dmq1.len != crt_len
+	    || rsakey->iqmp.len != crt_len) {
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+			 "key components must all be %d bytes", crt_len);
+		return SC_ERROR_INTERNAL;
+	}
+
+	/* first, store private key */
+	need = 5 + rsakey->p.len + rsakey->q.len
+		+ rsakey->dmp1.len + rsakey->dmq1.len
+		+ rsakey->iqmp.len;
+	if (need > sizeof prkey_raw)
+		return SC_ERROR_INTERNAL;
+		
+	prlen = 0;
+	prkey_raw[prlen++] = 7; /* key type */
+	prkey_raw[prlen++] = rsakey->modulus.len / 16; /* size code */
+
+	prkey_raw[prlen++] = (pukey_file->id >> 8) & 0xff;
+	prkey_raw[prlen++] = pukey_file->id & 0xff;
+	prkey_raw[prlen++] = 0;
+	memcpy(prkey_raw + prlen, rsakey->p.data, rsakey->p.len);
+	sc_mem_reverse(prkey_raw + prlen, rsakey->p.len);
+	prlen += rsakey->p.len;
+	memcpy(prkey_raw + prlen, rsakey->q.data, rsakey->q.len);
+	sc_mem_reverse(prkey_raw + prlen, rsakey->q.len);
+	prlen += rsakey->q.len;
+	memcpy(prkey_raw + prlen, rsakey->dmp1.data, rsakey->dmp1.len);
+	sc_mem_reverse(prkey_raw + prlen, rsakey->dmp1.len);
+	prlen += rsakey->dmp1.len;
+	memcpy(prkey_raw + prlen, rsakey->dmq1.data, rsakey->dmq1.len);
+	sc_mem_reverse(prkey_raw + prlen, rsakey->dmq1.len);
+	prlen += rsakey->dmq1.len;
+	memcpy(prkey_raw + prlen, rsakey->iqmp.data, rsakey->iqmp.len);
+	sc_mem_reverse(prkey_raw + prlen, rsakey->iqmp.len);
+	prlen += rsakey->iqmp.len;
+
+	acos5_put_key (card, prkey_raw, prlen);
+
+	/* now create the public key file */
+	need = 5 + 8 + rsakey->modulus.len;
+	if (need > sizeof pukey_raw)
+		return SC_ERROR_INTERNAL;
+
+	pulen = 0;
+	pukey_raw[pulen++] = 0; /* public */
+	pukey_raw[pulen++] = rsakey->modulus.len / 16;
+	pukey_raw[pulen++] = (prkey_file->id >> 8) & 0xff;
+	pukey_raw[pulen++] = prkey_file->id & 0xff;
+	pukey_raw[pulen++] = 0;
+	memcpy(pukey_raw + pulen, exponent_be8, 8);
+	sc_mem_reverse(pukey_raw + pulen, 8);
+	pulen += 8;
+	memcpy(pukey_raw + pulen, rsakey->modulus.data, rsakey->modulus.len);
+	sc_mem_reverse(pukey_raw + pulen, rsakey->modulus.len);
+	pulen += rsakey->modulus.len;
+
+	pukey_file->size = pulen;
+
+	p = sec_attr;
+	*p++ = 0x8d;
+	*p++ = 2;
+	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
+	sec_attr_len = p - sec_attr;
+	sc_file_set_sec_attr(pukey_file, sec_attr,  sec_attr_len);
+
+	r = sc_create_file(card, pukey_file);
+	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
+		r = 0;
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't make pubkey file");
+
+	r = sc_select_file(card, &pukey_file->path, NULL);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't select pubkey file");
+
+	acos5_put_key (card, pukey_raw, pulen);
+
+	/*
+	 * now that the public key is in place, we store the
+	 * private key again, and the card will automatically
+	 * validate the compatibility of the two parts,
+	 * and set the internal key validated flag
+	 */
+	r = sc_select_file(card, prkey_path, NULL);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error selecting prkey");
+	acos5_put_key (card, prkey_raw, prlen);
 	
 	sc_file_free(prkey_file);
 	sc_file_free(pukey_file);
