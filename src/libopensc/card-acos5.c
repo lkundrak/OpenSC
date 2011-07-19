@@ -84,33 +84,58 @@ static int acos5_select_file_by_path(sc_card_t * card,
 				     const sc_path_t * in_path,
 				     sc_file_t ** file_out)
 {
-	int in_len = in_path->len;
-	const u8 *in_pos = in_path->value;
+	struct sc_context *ctx = card->ctx;
+	struct acos5_drv_data *drv_data = card->drv_data;
 	sc_path_t path;
-
-	memset(&path, 0, sizeof(sc_path_t));
-	path.len = 2;		/* one component at a time */
-	path.type = SC_PATH_TYPE_FILE_ID;
+	int r;
 
 	/*
-	 * Check parameters.
+	 * The select command can't swallow a path -
+	 * we can only pass it one file id at a time.
+	 * 
+	 * One solution is to re-do the selects from the root
+	 * directory each time, but, if we've established security
+	 * parameters, we lose them as soon as we select a different
+	 * DF card-mcrd.c tries to manage the same problem by keeping
+	 * track of the current directory, and avoiding unnecessary
+	 * selects away from it.  But that's pretty complicated (after
+	 * a select, you have to figure out whether the current file
+	 * is a directory or not, among other things)
+	 *
+	 * Luckily, the acos5 card implements a search path in the
+	 * select command, documented as follows:
+	 *
+	 * current DF
+	 * current DF's children
+	 * current DF's parent
+	 * current DF's siblings
+	 * MF
+	 * MF's children
+	 *
+	 * Crazy for an ordinary operating system, but it actually
+	 * covers all the cases we care about, since we do all our
+	 * work in a single AppDF immediately under the root.
+	 *
+	 * So, we just dig the last item out of the path and select it.
 	 */
-	if (in_len % 2 != 0)
+	 
+	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
+	sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
+		 "select by path", sc_print_path(in_path));
+
+	if (in_path->len == 0)
+		return SC_SUCCESS;
+
+	if (in_path->len % 2 != 0)
 		return SC_ERROR_INVALID_ARGUMENTS;
 
-	/*
-	 * File ID by file ID...
-	 */
-	while (in_len) {
-		int result;
-		memcpy(path.value, in_pos, 2);
-		result = iso_ops->select_file(card, &path, file_out);
-		if (result != SC_SUCCESS)
-			return result;
-		in_len -= 2;
-		in_pos += 2;
-	}
-	return SC_SUCCESS;
+	memset(&path, 0, sizeof path);
+	path.len = 2;
+	path.type = SC_PATH_TYPE_FILE_ID;
+	memcpy (path.value, in_path->value + in_path->len - 2, 2);
+
+	r = iso_ops->select_file(card, &path, file_out);
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, r);
 }
 
 static int acos5_select_file(sc_card_t * card,

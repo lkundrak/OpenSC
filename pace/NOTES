@@ -1,3 +1,17 @@
+openssl genrsa -out test1024.key 1024
+openssl rsa -in test1024.key -noout -text
+
+pkcs15-tool --read-ssh-key 45
+output is 2 lines, the first all numbers, the second starting with ssh-rsa
+put both lines in target acct .ssh/authorized_keys
+
+ssh -I /usr/local/lib/opensc-pkcs11.so test@localhost
+
+should ask for PIN but nothing else
+
+
+================================================================
+
 callers of sc_pkcs15init_delete_by_path:
 
 sc_pkcs15init_store_data (but can be overridden with emu_store_data)
