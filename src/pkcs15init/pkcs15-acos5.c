@@ -387,6 +387,7 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	u8 type_attr[100], sec_attr[100];
 	int type_attr_len, sec_attr_len;
 	int refnum;
+	int need_activate = 0;
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
@@ -416,6 +417,8 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	
 		/* Security Attributes Compact */
 		p = sec_attr;
+
+		/* give read and update access of pins to user pin */
 		*p++ = 0x8c;
 		*p++ = 0x08;
 		*p++ = 0x7f;
@@ -434,13 +437,12 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		r = sc_create_file(card, pinfile);
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
 			    "pinfile creation failed");
+		need_activate = 1;
 
 		r = sc_select_file(card, &pinfile->path, NULL);
 	}
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "select pinfile failed");
 
-	sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
-		 "pinfile->status:%X", pinfile->status);
 	sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
 		 "create PIN with reference:%X, flags:%X, path:%s",
 		 auth_info->attrs.pin.reference,
@@ -455,7 +457,8 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	refnum = auth_info->attrs.pin.reference;
 	if (refnum < 1 || refnum > ACOS5_MAX_PINS) {
 		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
-			 "pin reference num must be 1..%d; got %d", ACOS5_MAX_PINS, refnum);
+			 "pin reference num must be 1..%d; got %d",
+			 ACOS5_MAX_PINS, refnum);
 		return SC_ERROR_INTERNAL;
 	}
 
@@ -475,13 +478,8 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
 		return SC_ERROR_INTERNAL;
 	
-	if (0) {
-		/* 
-		 * enabling this starts enforcing pin access
-		 * (but other stuff doesn't work yet if it is on)
-		 */
+	if (need_activate)
 		acos5_activate_file (card, pinfile);
-	}
 
 	sc_file_free(pinfile); /* XXX leaked on error returns above */
 
@@ -527,10 +525,6 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	r = sc_select_file(card, &keyfile->path, &found);
 	if (r == SC_ERROR_FILE_NOT_FOUND) {
-		/*
-		 * TODO: figure out why this is
-		 * still called during first store key
-		 */
 		p = sec_attr;
 		*p++ = 0x8d;
 		*p++ = 2;
@@ -541,7 +535,7 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 		r = sc_pkcs15init_create_file(profile, p15card, keyfile);
 		if (r >= 0)
-			r = sc_select_file(card, &keyfile->path, &found);
+		r = sc_select_file(card, &keyfile->path, &found);
 	}
 
 	if (r >= 0)
