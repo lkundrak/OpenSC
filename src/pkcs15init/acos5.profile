@@ -81,7 +81,7 @@ filesystem {
             structure = transparent;
 	        size      = 128;
 	        acl	  = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN;
-	    }
+	}
 
         DF PKCS15-AppDF {
 	    type      = DF;
@@ -94,7 +94,7 @@ filesystem {
 		structure     = 0x0c;
 		record-length = 18;
 		size          = 18;
-		ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
+		ACL           = READ=$PIN, UPDATE=$PIN, DELETE=NONE
 	    }
 
 	    EF sefile {
@@ -102,7 +102,7 @@ filesystem {
 		structure     = 0x0c;
 		record-length = 32;
 		size          = 32;
-		ACL           = READ=NONE, UPDATE=NONE, DELETE=NONE
+		ACL           = READ=NONE, UPDATE=$PIN, DELETE=NONE
 	    }
 
 	    EF PKCS15-ODF {
@@ -170,13 +170,13 @@ filesystem {
             EF template-private-key {
                 type      = internal-ef;
     	        file-id   = 4B11;	
-    	        acl       = CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+    	        acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
             }
 
             EF template-hw-public-key {
                 type      = internal-ef;
     	        file-id   = 5b11;	
-    	        acl       = CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+    	        acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
             }
 
             EF template-public-key {
@@ -197,7 +197,7 @@ filesystem {
                 EF private-key {
                     file-id   = 4B11;
                     type      = internal-ef;
-                    acl       = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+                    acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
                 }
                 EF public-key {
                     file-id   = 5511;
