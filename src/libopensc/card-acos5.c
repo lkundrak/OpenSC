@@ -89,6 +89,7 @@ static int acos5_select_file_by_path(sc_card_t * card,
 	struct acos5_drv_data *drv_data = card->drv_data;
 	sc_path_t path;
 	int r;
+	int offset;
 
 	/*
 	 * The select command can't swallow a path -
@@ -97,7 +98,7 @@ static int acos5_select_file_by_path(sc_card_t * card,
 	 * One solution is to re-do the selects from the root
 	 * directory each time, but, if we've established security
 	 * parameters, we lose them as soon as we select a different
-	 * DF card-mcrd.c tries to manage the same problem by keeping
+	 * DF. card-mcrd.c tries to manage the same problem by keeping
 	 * track of the current directory, and avoiding unnecessary
 	 * selects away from it.  But that's pretty complicated (after
 	 * a select, you have to figure out whether the current file
@@ -136,7 +137,20 @@ static int acos5_select_file_by_path(sc_card_t * card,
 	memcpy (path.value, in_path->value + in_path->len - 2, 2);
 
 	r = iso_ops->select_file(card, &path, file_out);
-	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, r);
+	if (r == 0)
+		return (SC_SUCCESS);
+
+	/*
+	 * the card's built-in search path didn't work...
+	 * try doing it file by file
+	 */
+	for (offset = 0; offset < in_path->len; offset += 2) {
+		memcpy(path.value, in_path->value + offset, 2);
+		r = iso_ops->select_file(card, &path, file_out);
+		SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r,
+			    "select_file_by_path failed");
+	}
+	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
 }
 
 static int acos5_select_file(sc_card_t * card,
