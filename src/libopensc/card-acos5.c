@@ -28,6 +28,7 @@
 
 #include "internal.h"
 #include "cardctl.h"
+#include "asn1.h"
 
 static struct sc_atr_table acos5_atrs[] = {
 	{"3b:be:96:00:00:41:05:20:00:00:00:00:00:00:00:00:00:90:00", NULL, NULL,
@@ -455,6 +456,88 @@ static int acos5_list_files(sc_card_t * card, u8 * buf, size_t buflen)
 	return bufp - buf;
 }
 
+struct acos5_sac_buf {
+	u8 flags;
+	u8 const *data;
+	int datalen;
+	int offset;
+	int mask;
+};
+
+static int
+acos5_sac_buf_get (struct acos5_sac_buf *sac)
+{
+	int expect_byte;
+
+	expect_byte = (sac->mask & sac->flags);
+
+	sac->mask >>= 1;
+
+	if (expect_byte && sac->offset < sac->datalen)
+		return (sac->data[sac->offset++]);
+
+	return (0);
+}
+
+static void
+acos5_add_acl (sc_file_t *file, int op, int rawval)
+{
+	unsigned int keyref, method;
+	
+	keyref = SC_AC_KEY_REF_NONE;
+
+	if (rawval == 0) {
+		method = SC_AC_NONE;
+	} else if (rawval == 0xff) {
+		method = SC_AC_NEVER;
+	} else {
+		method = SC_AC_CHV;
+		keyref = rawval & 0x0f;
+	}
+	sc_file_add_acl_entry (file, op, method, keyref);
+}
+
+static int (*process_fci_orig)(sc_card_t *card, sc_file_t *file,
+			       const u8 *buf, size_t buflen);
+
+static int acos5_process_fci(sc_card_t *card, sc_file_t *file,
+			     const u8 *buf, size_t buflen)
+{
+	sc_context_t *ctx = card->ctx;
+	size_t taglen, len = buflen;
+	const u8 *tag = NULL, *p = buf;
+	int r;
+	struct acos5_sac_buf sac;
+
+	r = (*process_fci_orig)(card, file, buf, buflen);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error parsing fci");
+
+	tag = sc_asn1_find_tag(ctx, p, len, 0x8c, &taglen);
+	if (tag && taglen >= 1) {
+		sac.flags = tag[0];
+		sac.data = tag + 1;
+		sac.datalen = taglen - 1;
+		sac.offset = 0;
+		sac.mask = 0x80;
+
+		acos5_sac_buf_get (&sac); /* bit 7 not used */
+		acos5_add_acl (file, SC_AC_OP_DELETE,
+			       acos5_sac_buf_get (&sac));
+		acos5_sac_buf_get (&sac); /* bit 5 (terminate) not in opensc */
+		acos5_add_acl (file, SC_AC_OP_REHABILITATE,
+			       acos5_sac_buf_get (&sac));
+		acos5_add_acl (file, SC_AC_OP_INVALIDATE,
+			       acos5_sac_buf_get (&sac));
+		acos5_sac_buf_get (&sac); /* bit 2 not used for EF */
+		acos5_add_acl (file, SC_AC_OP_UPDATE,
+			       acos5_sac_buf_get (&sac));
+		acos5_add_acl (file, SC_AC_OP_READ,
+			       acos5_sac_buf_get (&sac));
+	}
+		
+	return (SC_SUCCESS);
+}
+
 static int acos5_construct_fci(sc_card_t *card, const sc_file_t *file,
 	u8 *out, size_t *outlen)
 {
@@ -613,7 +696,10 @@ static struct sc_card_driver *sc_get_driver(void)
 	acos5_ops.list_files = acos5_list_files;
 	// check_sw
 	acos5_ops.card_ctl = acos5_card_ctl;
-	// process_fci
+
+	process_fci_orig = acos5_ops.process_fci;
+	acos5_ops.process_fci = acos5_process_fci;
+
 	acos5_ops.construct_fci = acos5_construct_fci;
 	acos5_ops.pin_cmd = acos5_pin_cmd;
 	// get_data
