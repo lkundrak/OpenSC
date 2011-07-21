@@ -46,6 +46,13 @@
 #define CONFMEM_BASE 0x3080
 #define CONFMEM_SIZE (0x30d0 - CONFMEM_BASE)
 
+/*
+ * TODO: convert uses of ACOS5_MAIN_SE_FILE to 
+ * sc_profile_get_file(..,"sefile",..) 
+ */
+#define ACOS5_MAIN_SE_FILE 0x6004
+
+
 /* to be removed before merge upstream */
 static void
 acos5_display_confmem(sc_card_t *card)
@@ -245,11 +252,55 @@ acos5_activate_file (sc_card_t *card, sc_file_t *file)
 	return (SC_SUCCESS);
 }
 
-/*
- * TODO: convert uses of ACOS5_MAIN_SE_FILE to 
- * sc_profile_get_file(..,"sefile",..) 
- */
-#define ACOS5_MAIN_SE_FILE 0x6004
+static int
+acos5_get_acl_byte (sc_file_t *file, int op)
+{
+	sc_acl_entry_t const *acl;
+
+	acl = sc_file_get_acl_entry (file, op);
+	if (acl == NULL)
+		return (0xff); /* no access */
+
+	switch (acl->method) {
+	default:
+	case SC_AC_UNKNOWN:
+	case SC_AC_NEVER:
+		return (0xff);
+	case SC_AC_NONE:
+		return (0);
+	case SC_AC_CHV:
+		if (acl->key_ref >= 0 && acl->key_ref < ACOS5_MAX_PINS)
+			return (acl->key_ref);
+		return (0xff);
+	}
+}
+
+static int
+acos5_sec_attr (sc_file_t *file)
+{
+	u8 sec_attr[100], *p;
+	
+
+	p = sec_attr;
+	*p++ = 0x8d;
+	*p++ = 2;
+	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
+
+	/* SAC Security Attribute Compact, section 4.1.1 */
+	*p++ = 0x8c;
+	*p++ = 0x08;
+	*p++ = 0x7f;
+	*p++ = acos5_get_acl_byte (file, SC_AC_OP_DELETE);
+	*p++ = 0xff; /* terminate: not supported in opensc */
+	*p++ = acos5_get_acl_byte (file, SC_AC_OP_REHABILITATE);
+	*p++ = acos5_get_acl_byte (file, SC_AC_OP_INVALIDATE);
+	*p++ = acos5_get_acl_byte (file, SC_AC_OP_CRYPTO);
+	*p++ = acos5_get_acl_byte (file, SC_AC_OP_UPDATE);
+	*p++ = acos5_get_acl_byte (file, SC_AC_OP_READ);
+
+	sc_file_set_sec_attr (file, sec_attr, p - sec_attr);
+}
 
 /*
  * Initialize the Application DF (the 5015 directory)
@@ -271,21 +322,13 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	sc_file_t *sefile;
 	int refnum;
 
-	/* the argument "df" describes the appdir we need to create */
+	/* the argument "df" describes the appdir we need to create (5015) */
 
-	/* add SE file ID field */
-	p = sec_attr;
-	*p++ = 0x8d;
-	*p++ = 2;
-	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
-	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
-	/* may need to add Security Attributes Compact here too */
-	sec_attr_len = p - sec_attr;
-	sc_file_set_sec_attr(df, sec_attr,  sec_attr_len);
+	r = sc_pkcs15init_fixup_file (profile, p15card, df);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+	acos5_sec_attr (df);
 
 	r = sc_create_file(card, df);
-	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
-		r = 0;
 	LOG_TEST_RET(ctx, r, "can't create appdir");
 	
 	r = sc_select_file(card, &df->path, NULL);
@@ -415,24 +458,10 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		type_attr_len = p - type_attr;
 		sc_file_set_type_attr(pinfile, type_attr, type_attr_len);
 	
-		/* Security Attributes Compact */
-		p = sec_attr;
 
-		/* give read and update access of pins to user pin */
-		*p++ = 0x8c;
-		*p++ = 0x08;
-		*p++ = 0x7f;
-
-		*p++ = 0x00; /* delete self */
-		*p++ = 0x00; /* terminate */
-		*p++ = 0x00; /* activate */
-		*p++ = 0x00; /* deactivate */
-		*p++ = SEREC_USER_PIN; /* create df; mse/pso; mse restore */
-		*p++ = SEREC_USER_PIN; /* create ef; update; put; mse store/delete */
-		*p++ = SEREC_USER_PIN; /* delete child; read; get; read */
-
-		sec_attr_len = p - sec_attr;
-		sc_file_set_sec_attr (pinfile, sec_attr, sec_attr_len);
+		r = sc_pkcs15init_fixup_file (profile, p15card, pinfile);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+		acos5_sec_attr (pinfile);
 
 		r = sc_create_file(card, pinfile);
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
