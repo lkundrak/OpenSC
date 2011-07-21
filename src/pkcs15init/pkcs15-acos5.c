@@ -450,6 +450,39 @@ acos5_select_pin_reference(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
         return SC_SUCCESS;
 }
 
+static int
+acos5_write_pinrec (sc_card_t *card, int refnum, const u8 *pin, size_t pin_len)
+{
+	struct sc_context *ctx = card->ctx;
+	int dlen;
+	u8 data[100];
+	sc_apdu_t apdu;
+	int r, i;
+
+	if (pin_len > 16) {
+		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "invalid pin length");
+		return SC_ERROR_INTERNAL;
+	}
+
+	/* manual section 3.1.1 PIN Data Structure */
+	dlen = 0;
+	data[dlen++] = 0x80 | refnum;
+	data[dlen++] = 0xff; /* don't use pin fail counter for now */
+	for (i = 0; i < pin_len; i++)
+		data[dlen++] = pin[i];
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, refnum, 4);
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
+	apdu.data = data;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
+	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write pinrec failed");
+
+	return SC_SUCCESS;
+}
+
 #define SEREC_USER_PIN 1
 
 static int
@@ -526,35 +559,14 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		 auth_info->attrs.pin.flags,
 		 sc_print_path(&auth_info->path));
 
-	if (pin_len < 1 || pin_len > 16) {
-		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "invalid pin length");
-		return SC_ERROR_INTERNAL;
-	}
-
 	refnum = auth_info->attrs.pin.reference;
-	if (refnum < 1 || refnum > ACOS5_MAX_PINS) {
-		sc_debug(ctx, SC_LOG_DEBUG_VERBOSE,
-			 "pin reference num must be 1..%d; got %d",
-			 ACOS5_MAX_PINS, refnum);
-		return SC_ERROR_INTERNAL;
-	}
 
-	/* manual section 3.1.1 PIN Data Structure */
-	dlen = 0;
-	data[dlen++] = 0x80 | refnum;
-	data[dlen++] = 0xff; /* don't use pin fail counter for now */
-	for (i = 0; i < pin_len; i++)
-		data[dlen++] = pin[i];
-
-	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, refnum, 4);
-	apdu.lc = dlen;
-	apdu.datalen = dlen;
-	apdu.data = data;
-	r = sc_transmit_apdu(card, &apdu);
-	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
-	if (apdu.sw1 != 0x90 || apdu.sw2 != 0x00)
-		return SC_ERROR_INTERNAL;
+	r = acos5_write_pinrec (card, refnum, pin, pin_len);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write pin failed");
 	
+	r = acos5_write_pinrec (card, refnum + 1, puk, puk_len);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write puk failed");
+
 	if (need_activate)
 		acos5_activate_file (card, pinfile);
 
