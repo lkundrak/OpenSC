@@ -712,7 +712,7 @@ sc_pkcs15init_finalize_card(struct sc_card *card, struct sc_profile *profile)
 {
 	if (profile->ops->finalize_card == NULL)
 		return SC_ERROR_NOT_SUPPORTED;
-	return profile->ops->finalize_card(card);
+	return profile->ops->finalize_card(profile, card);
 }
 
 

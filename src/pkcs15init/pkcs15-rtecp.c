@@ -628,7 +628,7 @@ static int rtecp_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
  * Finalize card
  * Ends the initialization phase of the smart card/token
  */
-static int rtecp_finalize(sc_card_t *card)
+static int rtecp_finalize(sc_profile_t *profile, sc_card_t *card)
 {
 	if (!card)
 		return SC_ERROR_INVALID_ARGUMENTS;
