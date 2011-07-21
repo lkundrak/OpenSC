@@ -41,7 +41,7 @@
 #define STARCOS_SOPIN_LID	0x81
 #define STARCOS_SOPIN_LAC	0x11;
 
-static int starcos_finalize_card(sc_card_t *card);
+static int starcos_finalize_card(sc_profile_t *profile, sc_card_t *card);
 
 static int starcos_erase_card(struct sc_profile *pro, sc_pkcs15_card_t *p15card)
 {
@@ -478,7 +478,7 @@ static int starcos_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	/* in case of a SOPIN: if AC WRITE KEY is protected by the
 	 * SOPIN, call starcos_finalize_card to activate the ACs  */
 	if (need_finalize)
-		 r = starcos_finalize_card(card);
+		 r = starcos_finalize_card(profile, card);
 
 	return r;
 }
@@ -894,7 +894,7 @@ static int starcos_generate_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card
 	return SC_SUCCESS;
 }
 
-static int starcos_finalize_card(sc_card_t *card)
+static int starcos_finalize_card(sc_profile_t *profile, sc_card_t *card)
 {
 	int       r;
 	sc_file_t tfile;

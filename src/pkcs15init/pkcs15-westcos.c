@@ -319,7 +319,7 @@ out:
 #endif
 }
 
-static int westcos_pkcs15init_finalize_card(sc_card_t *card)
+static int westcos_pkcs15init_finalize_card(sc_profile_t *profile, sc_card_t *card)
 {
 	int r;
 

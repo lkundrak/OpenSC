@@ -714,7 +714,8 @@ myeid_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 }
 
 /* Finish initialization. After this ACL is in affect */
-static int myeid_finalize_card(sc_card_t *card) {
+static int myeid_finalize_card(sc_profile_t *profile, sc_card_t *card)
+{
 	LOG_FUNC_CALLED(card->ctx);
 	LOG_FUNC_RETURN(card->ctx, sc_card_ctl(card, SC_CARDCTL_MYEID_ACTIVATE_CARD, NULL));
 }
