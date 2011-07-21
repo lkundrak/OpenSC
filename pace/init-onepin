@@ -1,0 +1,6 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+set -x
+pkcs15-init --create-pkcs15 --profile pkcs15+onepin --pin 111111 --puk 123456 $*
