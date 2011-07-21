@@ -170,19 +170,19 @@ filesystem {
             EF template-private-key {
                 type      = internal-ef;
     	        file-id   = 4B11;	
-    	        acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+    	        acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN
             }
 
             EF template-hw-public-key {
                 type      = internal-ef;
     	        file-id   = 5b11;	
-    	        acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+		ACL           = READ=$PIN, CRYPTO=$PIN, UPDATE=$PIN, DELETE=NONE
             }
 
             EF template-public-key {
                 structure = transparent;
                 file-id	  = 5511;
-                acl	  = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+                acl	  = READ=NONE, UPDATE=$PIN, DELETE=$PIN, CRYPTO=$PIN;
             }
 
             EF template-certificate {
@@ -197,12 +197,12 @@ filesystem {
                 EF private-key {
                     file-id   = 4B11;
                     type      = internal-ef;
-                    acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+                    acl       = *=NEVER, CRYPTO=$PIN, UPDATE=$PIN, DELETE=$PIN
                 }
                 EF public-key {
                     file-id   = 5511;
                     structure = transparent;
-                    acl       = READ=NONE, UPDATE=$PIN, DELETE=$PIN, GENERATE=$PIN;
+                    acl       = READ=NONE, UPDATE=$PIN, DELETE=$PIN, CRYPTO=$PIN;
                 }
 		
                 # Certificate template

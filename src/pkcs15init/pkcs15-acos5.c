@@ -526,8 +526,6 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	size_t		bytes, mod_len, exp_len, prv_len, pub_len;
 	int		r, algo;
 	struct sc_file *found = NULL;
-	u8 sec_attr[100], *p;
-	int sec_attr_len;
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
@@ -549,27 +547,23 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	 */
 	keyfile->size = 5 + 5 * (key_info->modulus_length / 8 / 2);
 
-	if ((r = sc_pkcs15init_fixup_file(profile, p15card, keyfile)) < 0)
+	r = sc_pkcs15init_fixup_file(profile, p15card, keyfile);
+	if (r < 0)
 		goto done;
 
-	r = sc_select_file(card, &keyfile->path, &found);
-	if (r == SC_ERROR_FILE_NOT_FOUND) {
-		p = sec_attr;
-		*p++ = 0x8d;
-		*p++ = 2;
-		*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
-		*p++ = ACOS5_MAIN_SE_FILE & 0xff;
-		sec_attr_len = p - sec_attr;
-		sc_file_set_sec_attr(keyfile, sec_attr,  sec_attr_len);
-
-		r = sc_pkcs15init_create_file(profile, p15card, keyfile);
-		if (r >= 0)
+	acos5_sec_attr (keyfile);
+	
+	r = sc_pkcs15init_create_file(profile, p15card, keyfile);
+	if (r >= 0)
 		r = sc_select_file(card, &keyfile->path, &found);
-	}
 
 	if (r >= 0)
 		r = sc_pkcs15init_authenticate(profile, p15card, keyfile,
 					       SC_AC_OP_UPDATE);
+
+	r = acos5_activate_file (card, keyfile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "error activating key file");
 
 done:
 	if (found)
@@ -634,8 +628,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	sc_apdu_t apdu;
 	sc_path_t *prkey_path, *pukey_path;
 	int len;
-	u8 sec_attr[100], *p;
-	int sec_attr_len;
+	u8 *p;
 	int pukey_raw_size;
 	u8 pukey_raw[5 + 8 + 2048 / 8];
 	u8 *exponent_raw, exponent[8];
@@ -680,13 +673,9 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	pukey_raw_size = 5 + 8 + key_info->modulus_length / 8;
 	pukey_file->size = pukey_raw_size;
 
-	p = sec_attr;
-	*p++ = 0x8d;
-	*p++ = 2;
-	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
-	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
-	sec_attr_len = p - sec_attr;
-	sc_file_set_sec_attr(pukey_file, sec_attr,  sec_attr_len);
+	r = sc_pkcs15init_fixup_file (profile, p15card, pukey_file);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+	acos5_sec_attr (pukey_file);
 
 	r = sc_create_file(card, pukey_file);
 	if (r < 0 && r != SC_ERROR_FILE_ALREADY_EXISTS) 
@@ -694,7 +683,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 
 	/* now set up for telling the card to generate the new key pair */
 	r = sc_pkcs15init_authenticate(profile, p15card, prkey_file,
-				       SC_AC_OP_GENERATE);
+				       SC_AC_OP_CRYPTO);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
 		    "No authorisation to generate private key");
 
@@ -761,6 +750,10 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 	sc_mem_reverse (p, len);
 	pubkey->u.rsa.modulus.len = len;
 	pubkey->u.rsa.modulus.data = p;
+
+	r = acos5_activate_file (card, pukey_file);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "error activating public key file");
 
 	/*
 	 * the memory allocated for the exponent and modulus will be
@@ -851,6 +844,11 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	r = sc_select_file(card, prkey_path, &prkey_file);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
 		    "unable to select rsa private key file");
+
+	r = sc_pkcs15init_authenticate(profile, p15card, prkey_file,
+				       SC_AC_OP_UPDATE);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "can't authenticate for rsa private key file");
 
 	/* make public key path, copying low byte of file id from private key */
 	r = sc_profile_get_file(profile, "template-hw-public-key",
