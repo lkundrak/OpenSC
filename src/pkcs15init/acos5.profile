@@ -29,6 +29,7 @@ option default {
     macros {
         unprotected        = READ=NONE, UPDATE=NONE,   DELETE=NONE,   CRYPTO=NEVER;
 	protected          = READ=NONE, UPDATE=$SOPIN, DELETE=$SOPIN, CRYPTO=$PIN;
+	so-pin-flags       = initialized, needs-padding, soPin;
 
         unusedspace-size   = 510;
         odf-size           = 255;
@@ -45,6 +46,7 @@ option onepin {
     macros {
         unprotected	   = READ=NONE, UPDATE=NONE,   DELETE=NONE, CRYPTO=NEVER;
         protected	   = READ=NONE, UPDATE=$PIN,   DELETE=$PIN, CRYPTO=$PIN;
+	so-pin-flags       = initialized, needs-padding;
     }
 }
 
@@ -64,7 +66,7 @@ PIN so-pin {
     reference  = 3;
     auth-id    = FF;
     attempts   = 3;
-    flags      = initialized, soPin, needs-padding;
+    flags      = $so-pin-flags;
 }
 
 PIN so-puk {
