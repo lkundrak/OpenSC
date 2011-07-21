@@ -348,22 +348,13 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	*p++ = 0x00; /* must be 0 */
 	*p++ = 0x10; /* mrl: max record len */
 	*p++ = 0x04; /* nor: number of records */
-
-	/* Security Attributes Compact */
-	*p++ = 0x8c; /* allow everything for now */
-	*p++ = 0x08;
-	*p++ = 0x7f;
-	*p++ = 0x00;
-	*p++ = 0x00;
-	*p++ = 0x00;
-	*p++ = 0x00;
-	*p++ = 0x00;
-	*p++ = 0x00;
-	*p++ = 0x00;
-
 	type_attr_len = p - type_attr;
 	sc_file_set_type_attr(sefile, type_attr, type_attr_len);
 	
+	r = sc_pkcs15init_fixup_file (profile, p15card, sefile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+	acos5_sec_attr (sefile);
+
 	r = sc_create_file(card, sefile);
 	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
 		r = 0;
@@ -427,8 +418,8 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	int i;
 	sc_apdu_t apdu;
 	u8 *p;
-	u8 type_attr[100], sec_attr[100];
-	int type_attr_len, sec_attr_len;
+	u8 type_attr[100];
+	int type_attr_len;
 	int refnum;
 	int need_activate = 0;
 
