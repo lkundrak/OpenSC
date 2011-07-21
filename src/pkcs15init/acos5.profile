@@ -155,7 +155,7 @@ filesystem {
                 structure     = 0x0c;
                 record-length = 32;
                 size          = 32;
-                ACL           = *=NEVER;
+                ACL           = *=NONE;  # change to NEVER
             }
 
             EF template-private-key {

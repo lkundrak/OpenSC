@@ -373,44 +373,11 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	r = sc_select_file(card, &df->path, NULL);
 	LOG_TEST_RET(ctx, r, "can't select appdir");
 
-	/* now create the SE file within the appdir */
-	r = sc_profile_get_file(profile, "sefile", &sefile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
-		    "Cannot get sefile from profile");
-
-	p = type_attr;
-	/* create file parameters: see section 5.1 */
-	*p++ = 0x82;
-	*p++ = 0x05;
-	*p++ = 0x0c; /* fdb: linear variable EF */
-	*p++ = 0x01; /* dcb: unused in acos5 */
-	*p++ = 0x00; /* must be 0 */
-	*p++ = 0x10; /* mrl: max record len */
-	*p++ = 0x04; /* nor: number of records */
-	type_attr_len = p - type_attr;
-	sc_file_set_type_attr(sefile, type_attr, type_attr_len);
-	
-	r = sc_pkcs15init_fixup_file (profile, p15card, sefile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-	acos5_sec_attr (sefile);
-
-	r = sc_create_file(card, sefile);
-	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
-		r = 0;
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
-
-	for (refnum = 1; refnum <= 4; refnum++) {
-		u8 serec[100];
-		p = serec;
-		*p++ = 0x80; *p++ = 0x01; *p++ = refnum; /* SE#refnum */
-		*p++ = 0xa4; *p++ = 0x06; /* Authentication Template, 6 bytes to follow */
-		*p++ = 0x83; *p++ = 0x01; *p++ = 0x80 | refnum; /* pin refnum */
-		*p++ = 0x95; *p++ = 0x01; *p++ = 0x08; /* pin verify required */
-		r = acos5_store_serec(card, refnum, serec, p - serec);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error storing serec");
-	}
-
-	/* create the file for pins */
+	/*
+	 * have to create the pinfile right away, so it will be first
+	 * in the directory, and thus its claim to Short File
+	 * Identifier 1 will have precedence over any other file ids
+	 */
 	r = sc_profile_get_file(profile, "pinfile", &pinfile);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
 		    "Cannot get pinfile from profile");
@@ -439,13 +406,98 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
 		    "pinfile creation failed");
 	
-	r = acos5_activate_file (card, sefile);
-	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't activate sefile");
-	
 	r = acos5_activate_file (card, df);
 	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't activate appdir");
 
 	SC_FUNC_RETURN(ctx, SC_LOG_DEBUG_NORMAL, SC_SUCCESS);
+}
+
+int
+acos5_enable_security (sc_profile_t *profile, sc_pkcs15_card_t *p15card)
+{
+	sc_card_t *card = p15card->card;
+	struct sc_context *ctx = card->ctx;
+	sc_apdu_t apdu;
+	int r;
+	int have_so_pin;
+	sc_file_t *sefile, *pinfile;
+	u8 *p;
+	u8 type_attr[100];
+	int type_attr_len;
+	int recnum, pin_reference;
+
+	/* first, find out if we're running with an so pin */
+
+	sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "checking for so pin");
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_1, 0x20, 0, 0x83);
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "APDU transmit failed");
+	if (apdu.sw1 == 0x6a && apdu.sw2 == 0x83) {
+		/* not found */
+		have_so_pin = 0;
+	} else {
+		have_so_pin = 1;
+	}
+
+	/* create the SE file within the appdir */
+	r = sc_profile_get_file(profile, "sefile", &sefile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
+		    "Cannot get sefile from profile");
+
+	p = type_attr;
+	/* create file parameters: see section 5.1 */
+	*p++ = 0x82;
+	*p++ = 0x05;
+	*p++ = 0x0c; /* fdb: linear variable EF */
+	*p++ = 0x01; /* dcb: unused in acos5 */
+	*p++ = 0x00; /* must be 0 */
+	*p++ = 0x10; /* mrl: max record len */
+	*p++ = ACOS5_MAX_PINS; /* nor: number of records */
+	type_attr_len = p - type_attr;
+	sc_file_set_type_attr(sefile, type_attr, type_attr_len);
+	
+	r = sc_pkcs15init_fixup_file (profile, p15card, sefile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+	acos5_sec_attr (sefile);
+
+	r = sc_create_file(card, sefile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
+
+	for (recnum = 1; recnum <= ACOS5_MAX_PINS; recnum++) {
+		u8 serec[100];
+
+		pin_reference = recnum;
+		if (! have_so_pin) {
+			/* if no sopin, change sopin and sopuk to user pin and puk */
+			switch (pin_reference) {
+			case 3: pin_reference = 1; break;
+			case 4: pin_reference = 2; break;
+			}
+		}
+
+		p = serec;
+		*p++ = 0x80; *p++ = 0x01; *p++ = recnum; /* SE#recnum */
+		*p++ = 0xa4; *p++ = 0x06; /* Authentication Template, 6 bytes to follow */
+		*p++ = 0x83; *p++ = 0x01; *p++ = 0x80 | pin_reference; /* pin refnum */
+		*p++ = 0x95; *p++ = 0x01; *p++ = 0x08; /* pin verify required */
+		r = acos5_store_serec(card, recnum, serec, p - serec);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error storing serec");
+	}
+
+	r = acos5_activate_file (card, sefile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "couldn't activate sefile");
+
+	r = sc_profile_get_file(profile, "pinfile", &pinfile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
+		    "Cannot get pinfile from profile");
+	r = acos5_activate_file (card, pinfile);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "couldn't activate pinfile");
+
+	sc_file_free (pinfile);
+	sc_file_free (sefile);
+
+	return (SC_SUCCESS);
 }
 
 static int
@@ -501,8 +553,6 @@ acos5_write_pinrec (sc_card_t *card, int refnum, const u8 *pin, size_t pin_len)
 	return SC_SUCCESS;
 }
 
-#define SEREC_USER_PIN 1
-
 static int
 acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 		 sc_file_t *df, sc_pkcs15_object_t *pin_obj,
@@ -549,14 +599,14 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	r = acos5_write_pinrec (card, refnum + 1, puk, puk_len);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write puk failed");
 
-	/* 
-	 * if we've just stored the user pin for the first time,
-	 * now's the time to activate the pinfile
-	 */
 	if (refnum == 1
 	    && cardfile->status == SC_FILE_STATUS_CREATION) {
-		r = acos5_activate_file (card, pinfile);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "couldn't activate pinfile");
+		/*
+		 * we're storing a user pin for the first time,
+		 * so we're ready to activate the security
+		 * stuff
+		 */
+		acos5_enable_security (profile, p15card);
 	}
 
 	/* XXX leaked on error returns above */
@@ -1029,10 +1079,10 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 	sc_format_apdu(card, &apdu, SC_APDU_CASE_1, 0xca, 0xff, 0);
 	apdu.cla |= 0x80;
 	r = sc_transmit_apdu(card, &apdu);
-	if (r < 0) {
-		printf("clear card failed\n");
-		exit(1);
-	}
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "APDU transmit failed");
+	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "erase card failed");
 
 	/*
 	 * should do acos5_finish_clear(card) here, but 
@@ -1049,10 +1099,10 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 static struct sc_pkcs15init_operations sc_pkcs15init_acos5_operations = {
 	acos5_erase_card, /* erase_card */
 	acos5_init_card, /* init_card */
-	acos5_create_dir, /* create_dir (required) */
+	acos5_create_dir, /* create_dir */
 	NULL, /* create_domain */
 	acos5_select_pin_reference, /* select_pin_reference */
-	acos5_create_pin, /* create_pin (required) */
+	acos5_create_pin, /* create_pin */
 	NULL, /* select_key_reference */
 	acos5_create_key, /* create_key */
 	acos5_store_key, /* store_key */
