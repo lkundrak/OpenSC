@@ -826,8 +826,6 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	u8 exponent_be8[8];
 	int prlen, pulen;
 	sc_apdu_t apdu;
-	u8 sec_attr[100], *p;
-	int sec_attr_len;
 	int crt_len;
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
@@ -934,13 +932,9 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	pukey_file->size = pulen;
 
-	p = sec_attr;
-	*p++ = 0x8d;
-	*p++ = 2;
-	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
-	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
-	sec_attr_len = p - sec_attr;
-	sc_file_set_sec_attr(pukey_file, sec_attr,  sec_attr_len);
+	r = sc_pkcs15init_fixup_file (profile, p15card, pukey_file);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+	acos5_sec_attr (pukey_file);
 
 	r = sc_create_file(card, pukey_file);
 	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
@@ -962,6 +956,10 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "error selecting prkey");
 	acos5_put_key (card, prkey_raw, prlen);
 	
+	r = acos5_activate_file (card, pukey_file);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+		    "error activating public key file");
+
 	sc_file_free(prkey_file);
 	sc_file_free(pukey_file);
 
