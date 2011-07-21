@@ -528,7 +528,8 @@ static int acos5_process_fci(sc_card_t *card, sc_file_t *file,
 			       acos5_sac_buf_get (&sac));
 		acos5_add_acl (file, SC_AC_OP_INVALIDATE,
 			       acos5_sac_buf_get (&sac));
-		acos5_sac_buf_get (&sac); /* bit 2 not used for EF */
+		acos5_add_acl (file, SC_AC_OP_CRYPTO,
+			       acos5_sac_buf_get (&sac));
 		acos5_add_acl (file, SC_AC_OP_UPDATE,
 			       acos5_sac_buf_get (&sac));
 		acos5_add_acl (file, SC_AC_OP_READ,
