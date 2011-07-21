@@ -1069,8 +1069,11 @@ acos5_erase_card(struct sc_profile *profile, struct sc_pkcs15_card *p15card)
 	r = sc_transmit_apdu(card, &apdu);
 	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r,
 		    "APDU transmit failed");
-	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "erase card failed");
+	if (apdu.sw1 != 0x90 || apdu.sw2 != 0) {
+		sc_debug (card->ctx, SC_LOG_DEBUG_NORMAL,
+			  "clear card returned 0x%02x%02x\n", 
+			  apdu.sw1, apdu.sw2);
+	}
 
 	/*
 	 * should do acos5_finish_clear(card) here, but 
