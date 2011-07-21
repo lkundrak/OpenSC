@@ -52,6 +52,19 @@
  */
 #define ACOS5_MAIN_SE_FILE 0x6004
 
+static int
+acos5_readable_keys (sc_profile_t *profile)
+{
+	int i;
+
+	for (i = 0; i < SC_PKCS15INIT_MAX_OPTIONS; i++) {
+		if (profile->options[i]
+		    && strcmp (profile->options[i], "readable_keys") == 0) {
+			return (1);
+		}
+	}
+	return (0);
+}
 
 /* to be removed before merge upstream */
 static void
@@ -150,6 +163,21 @@ acos5_init_card(sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
 
+	printf ("****\n");
+	printf ("This is a development version of the acos5 driver.\n");
+	printf ("It is incomplete, specifically in the area of locking\n");
+	printf ("down the card so that it won't disclose secret\n");
+	printf ("keys and pins.  Please test it, but don't use it\n");
+	printf ("in a production context or with valuable secrets.\n");
+	printf ("\n");
+	printf ("Proceed anyway? (y/n) ");
+	fflush (stdout);
+	if (fgets (data, sizeof data, stdin) == NULL
+	    || data[0] != 'y') {
+		printf ("canceled\n");
+		exit (1);
+	}
+
 	/* if MF can be selected, nothing further to do */
 	sc_format_path("3F00", &path);
 	if (sc_select_file(card, &path, NULL) == 0) {
@@ -230,7 +258,7 @@ acos5_activate_file (sc_card_t *card, sc_file_t *file)
 	u8 data[100];
 	int r;
 	sc_file_t *f2;
-	
+
 	sc_format_apdu (card, &apdu, SC_APDU_CASE_3_SHORT, 0x44, 0, 0);
 	dlen = 0;
 	data[dlen++] = (file->id >> 8) & 0xff;
@@ -275,11 +303,10 @@ acos5_get_acl_byte (sc_file_t *file, int op)
 	}
 }
 
-static int
+static void
 acos5_sec_attr (sc_file_t *file)
 {
 	u8 sec_attr[100], *p;
-	
 
 	p = sec_attr;
 	*p++ = 0x8d;
@@ -298,6 +325,32 @@ acos5_sec_attr (sc_file_t *file)
 	*p++ = acos5_get_acl_byte (file, SC_AC_OP_CRYPTO);
 	*p++ = acos5_get_acl_byte (file, SC_AC_OP_UPDATE);
 	*p++ = acos5_get_acl_byte (file, SC_AC_OP_READ);
+
+	sc_file_set_sec_attr (file, sec_attr, p - sec_attr);
+}
+
+static void
+acos5_sec_attr_permissive (sc_file_t *file)
+{
+	u8 sec_attr[100], *p;
+
+	p = sec_attr;
+	*p++ = 0x8d;
+	*p++ = 2;
+	*p++ = (ACOS5_MAIN_SE_FILE >> 8) & 0xff;
+	*p++ = ACOS5_MAIN_SE_FILE & 0xff;
+
+	/* SAC Security Attribute Compact, section 4.1.1 */
+	*p++ = 0x8c;
+	*p++ = 0x08;
+	*p++ = 0x7f;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
+	*p++ = 0x00;
 
 	sc_file_set_sec_attr (file, sec_attr, p - sec_attr);
 }
@@ -321,22 +374,6 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	sc_apdu_t apdu;
 	sc_file_t *sefile;
 	int refnum;
-
-	printf ("****\n");
-	printf ("This is a development version of the acos5 driver.\n");
-	printf ("It is incomplete, specifically in the area of locking\n");
-	printf ("down the card so that it won't disclose secret\n");
-	printf ("keys and pins.  Please test it, but don't use it\n");
-	printf ("in a production context or with valuable secrets.\n");
-	printf ("\n");
-	printf ("Proceed anyway? (y/n) ");
-	fflush (stdout);
-	if (fgets (data, sizeof data, stdin) == NULL
-	    || data[0] != 'y') {
-		printf ("canceled\n");
-		exit (1);
-	}
-
 
 	/* the argument "df" describes the appdir we need to create (5015) */
 
@@ -464,16 +501,20 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	
 		type_attr_len = p - type_attr;
 		sc_file_set_type_attr(pinfile, type_attr, type_attr_len);
-	
 
-		r = sc_pkcs15init_fixup_file (profile, p15card, pinfile);
-		SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-		acos5_sec_attr (pinfile);
+		if (acos5_readable_keys(profile)) {
+			acos5_sec_attr_permissive (pinfile);
+		} else {
+			r = sc_pkcs15init_fixup_file(profile, p15card,
+						     pinfile);
+			SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+			acos5_sec_attr(pinfile);
+			need_activate = 1;
+		} 
 
 		r = sc_create_file(card, pinfile);
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
 			    "pinfile creation failed");
-		need_activate = 1;
 
 		r = sc_select_file(card, &pinfile->path, NULL);
 	}
