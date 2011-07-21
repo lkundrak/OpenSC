@@ -322,6 +322,22 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	sc_file_t *sefile;
 	int refnum;
 
+	printf ("****\n");
+	printf ("This is a development version of the acos5 driver.\n");
+	printf ("It is incomplete, specifically in the area of locking\n");
+	printf ("down the card so that it won't disclose secret\n");
+	printf ("keys and pins.  Please test it, but don't use it\n");
+	printf ("in a production context or with valuable secrets.\n");
+	printf ("\n");
+	printf ("Proceed anyway? (y/n) ");
+	fflush (stdout);
+	if (fgets (data, sizeof data, stdin) == NULL
+	    || data[0] != 'y') {
+		printf ("canceled\n");
+		exit (1);
+	}
+
+
 	/* the argument "df" describes the appdir we need to create (5015) */
 
 	r = sc_pkcs15init_fixup_file (profile, p15card, df);
