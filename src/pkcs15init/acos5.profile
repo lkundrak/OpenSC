@@ -114,8 +114,12 @@ filesystem {
                 ACL           = $unprotected;
             }
 
+	    # pkcs15.profile uses 4401 as the file-id 
+	    # for PKCS15-AODF, but on the acos5 that
+	    # would usurp the Short File Identifier 0x01.
+	    # so, we have to pick a different file-id
             EF PKCS15-AODF {
-                file-id       = 4401;
+                file-id       = 4411;
                 size          = $aodf-size;
                 ACL           = $protected;
             }
@@ -144,12 +148,21 @@ filesystem {
                 ACL           = $protected;
             }
 
+	    # unfortunately, the pinfile has to be readable
+	    # to the user unblock pin in order to
+	    # reset the retry counter
+	    #
+	    # this could be fixed if sc_pin_cmd could
+	    # pass the desired retry count down
+	    # to the driver.  if this is
+	    # eventually done, then change
+	    # the acl to READ=NEVER
             EF pinfile {
                 file-id       = 6001;
                 structure     = 0x0c;
                 record-length = 18;
                 size          = 18;
-                ACL           = $protected, READ=NEVER;
+                ACL           = READ=CHV2, UPDATE=CHV2, DELETE=NEVER, CRYPTO=NEVER;
             }
 
             EF sefile {
@@ -157,13 +170,13 @@ filesystem {
                 structure     = 0x0c;
                 record-length = 32;
                 size          = 32;
-                ACL           = *=NONE;  # change to NEVER
+                ACL           = READ=NONE, UPDATE=NEVER, DELETE=NEVER, CRYPTO=NEVER;
             }
 
             EF template-private-key {
                 type          = internal-ef;
                 file-id       = 4b11;       
-                acl           = $protected, READ=NEVER;
+                acl           = READ=NEVER, UPDATE=$SOPIN, DELETE=$SOPIN, CRYPTO=$PIN;
             }
 
             # this is a specially formatted version of the public key

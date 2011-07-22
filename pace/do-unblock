@@ -1,0 +1,6 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+pkcs15-tool --unblock-pin --auth-id 01 --puk 2222 --new-pin 9999 $*
+
