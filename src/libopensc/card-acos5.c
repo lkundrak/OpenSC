@@ -614,6 +614,73 @@ static int acos5_construct_fci(sc_card_t *card, const sc_file_t *file,
 	return 0;
 }
 
+static int acos5_unblock (sc_card_t *card, struct sc_pin_cmd_data *pindata,
+			   int *tries_left)
+{
+	struct sc_context *ctx = card->ctx;
+	u8 data[100];
+	int dlen;
+	sc_apdu_t apdu;
+	int r;
+	sc_path_t path;
+	int file_id;
+	int tries;
+
+	file_id = 0x6001;
+	memset(&path, 0, sizeof path);
+	path.len = 2;
+	path.type = SC_PATH_TYPE_FILE_ID;
+	path.value[0] = (file_id >> 8) & 0xff;
+	path.value[1] = file_id & 0xff;
+
+	r = iso_ops->select_file(card, &path, NULL);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "can't select pinfile");
+
+	dlen = pindata->pin1.len;
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0x20, 0, 0x82);
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
+	apdu.data = pindata->pin1.data;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
+	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "verify puk failed");
+	
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_2_SHORT, 0xb2, pindata->pin_reference, 4);
+	apdu.resplen = 18;
+	apdu.le = apdu.resplen;
+	apdu.resp = data;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
+	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "read pin info failed");
+
+	tries = data[1] & 0x0f;
+	if (tries == 0)
+		tries = 1;
+
+	/* manual section 3.1.1 PIN Data Structure */
+	dlen = 0;
+	data[dlen++] = 0x80 | pindata->pin_reference;
+	data[dlen++] = (tries << 4) | tries;
+	memcpy (data + dlen, pindata->pin2.data, pindata->pin2.len);
+	dlen += pindata->pin2.len;
+
+	sc_format_apdu(card, &apdu, SC_APDU_CASE_3_SHORT, 0xdc, pindata->pin_reference, 4);
+	apdu.lc = dlen;
+	apdu.datalen = dlen;
+	apdu.data = data;
+	r = sc_transmit_apdu(card, &apdu);
+	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "APDU transmit failed");	
+	r = sc_check_sw(card, apdu.sw1, apdu.sw2);
+	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write pinrec failed");
+
+	return SC_SUCCESS;
+}
+
+
+
 static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
 			 int *tries_left)
 {
@@ -669,6 +736,9 @@ static int acos5_pin_cmd(sc_card_t *card, struct sc_pin_cmd_data *data,
 		SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
 			    "couldn't store new pin");
 		return SC_SUCCESS;
+
+	case SC_PIN_CMD_UNBLOCK:
+		return acos5_unblock (card, data, tries_left);
 	}
 
 	sc_debug(card->ctx, SC_LOG_DEBUG_NORMAL,
