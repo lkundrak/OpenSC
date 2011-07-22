@@ -1,0 +1,37 @@
+#! /bin/sh
+
+PATH=$HOME/OpenSC/src/tools:$PATH
+
+dir=/home/pace/OpenSC/pace
+
+echo hello > ${dir}/TMP.data1
+openssl dgst -binary -sha1 -out ${dir}/TMP.hash1 ${dir}/TMP.data1
+set -x
+openssl dgst -sha1 -sign ${dir}/test1024.key -out ${dir}/TMP.signed1 ${dir}/TMP.data1
+
+openssl rsautl -encrypt -raw -in ${dir}/TMP.signed1 -inkey ${dir}/test1024.key -out ${dir}/TMP.padded1
+hd ${dir}/TMP.signed1
+hd ${dir}/TMP.padded1
+hd ${dir}/TMP.hash1
+
+pkcs15-crypt --pin 1111 --sign --key 45 -i ${dir}/TMP.padded1 --output TMP.card
+hd TMP.card
+
+exit
+
+openssl rsautl -verify -raw -in TMP.signed -inkey ~/sslkeys/test.apebble.com.key -out TMP.recovered
+
+echo "data"
+hd -v TMP.data
+echo "signed"
+hd -v TMP.signed
+echo "recovered"
+hd -v TMP.recovered
+
+cmp TMP.data TMP.recovered
+if [ $? = 0 ]
+then
+    echo "TMP.data and TMP.recovered match"
+fi
+
+
