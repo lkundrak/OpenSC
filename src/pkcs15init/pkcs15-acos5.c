@@ -302,50 +302,73 @@ acos5_has_so_pin (sc_card_t *card)
 	return (0);
 }	
 
+enum acos5_pin_mode {
+	ACOS5_PIN_UNKNOWN,
+	ACOS5_PIN_HAVE_SO,
+	ACOS5_PIN_NO_SO,
+	ACOS5_PIN_ONEPIN
+};
+
 static int
-acos5_get_acl_byte (sc_file_t *file, int has_onepin, int has_so_pin, int op)
+acos5_get_acl_byte (sc_file_t *file, enum acos5_pin_mode pin_mode, int op)
 {
 	sc_acl_entry_t const *acl;
 
 	acl = sc_file_get_acl_entry (file, op);
 	if (acl == NULL)
-		return (0xff); /* no access */
+		return 0xff; /* no access */
 
-	if (acl->method == SC_AC_NONE)
-		return (0);
+	switch (acl->method) {
+	case SC_AC_NONE:
+		return 0; /* no pin needed */
 
-	if (acl->method == SC_AC_CHV) {
-		if (has_onepin) {
+	case SC_AC_CHV:
+		switch (pin_mode) {
+		case ACOS5_PIN_HAVE_SO:
+			return acl->key_ref;
+
+		case ACOS5_PIN_NO_SO:
+			if (acl->key_ref == 3 || acl->key_ref == 4)
+				return (0);
+			return acl->key_ref;
+
+		case ACOS5_PIN_ONEPIN:
+			/*
+			 * map all odd numbered pins to sopin, 
+			 * all even to sopuk
+			 */
 			if (acl->key_ref & 1)
-				return (3);
-			return (4);
-		}
-			
-		if (has_so_pin == 0
-		    && (acl->key_ref == 3 || acl->key_ref == 4)) {
-			return (0);
-		}
-		
-		return acl->key_ref;
-	}
+				return 3;
+			return 4;
 
-	return (0xff);
+		case ACOS5_PIN_UNKNOWN:
+			/* non-critical files don't need pin */
+			return 0;
+		}
+		/* NOTREACHED */
+		return 0;
+
+	default:
+		return 0xff; /* no access */
+	}
+}
+
+static enum acos5_pin_mode
+acos5_get_pin_mode (sc_profile_t *profile, sc_card_t *card)
+{
+	if (have_onepin (profile)) {
+		return (ACOS5_PIN_ONEPIN);
+	} else if (acos5_has_so_pin (card)) {
+		return (ACOS5_PIN_HAVE_SO);
+	} else {
+		return (ACOS5_PIN_NO_SO);
+	}
 }
 
 static void
-acos5_sec_attr (sc_profile_t *profile, sc_card_t *card, sc_file_t *file)
+acos5_sec_attr (sc_file_t *file, enum acos5_pin_mode pin_mode)
 {
 	u8 sec_attr[100], *p;
-	int has_so_pin;
-	int has_onepin;
-
-	has_onepin = have_onepin (profile);
-
-	if (card) {
-		has_so_pin = acos5_has_so_pin (card);
-	} else {
-		has_so_pin = 0;
-	}
 
 	p = sec_attr;
 	*p++ = 0x8d;
@@ -357,13 +380,13 @@ acos5_sec_attr (sc_profile_t *profile, sc_card_t *card, sc_file_t *file)
 	*p++ = 0x8c;
 	*p++ = 0x08;
 	*p++ = 0x7f;
-	*p++ = acos5_get_acl_byte (file, has_onepin, has_so_pin, SC_AC_OP_DELETE);
+	*p++ = acos5_get_acl_byte (file, pin_mode, SC_AC_OP_DELETE);
 	*p++ = 0xff; /* terminate: not supported in opensc */
-	*p++ = acos5_get_acl_byte (file, has_onepin, has_so_pin, SC_AC_OP_REHABILITATE);
-	*p++ = acos5_get_acl_byte (file, has_onepin, has_so_pin, SC_AC_OP_INVALIDATE);
-	*p++ = acos5_get_acl_byte (file, has_onepin, has_so_pin, SC_AC_OP_CRYPTO);
-	*p++ = acos5_get_acl_byte (file, has_onepin, has_so_pin, SC_AC_OP_UPDATE);
-	*p++ = acos5_get_acl_byte (file, has_onepin, has_so_pin, SC_AC_OP_READ);
+	*p++ = acos5_get_acl_byte (file, pin_mode, SC_AC_OP_REHABILITATE);
+	*p++ = acos5_get_acl_byte (file, pin_mode, SC_AC_OP_INVALIDATE);
+	*p++ = acos5_get_acl_byte (file, pin_mode, SC_AC_OP_CRYPTO);
+	*p++ = acos5_get_acl_byte (file, pin_mode, SC_AC_OP_UPDATE);
+	*p++ = acos5_get_acl_byte (file, pin_mode, SC_AC_OP_READ);
 
 	sc_file_set_sec_attr (file, sec_attr, p - sec_attr);
 }
@@ -392,7 +415,7 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 
 	r = sc_pkcs15init_fixup_file (profile, p15card, df);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-	acos5_sec_attr (profile, NULL, df);
+	acos5_sec_attr (df, ACOS5_PIN_UNKNOWN);
 
 	r = sc_create_file(card, df);
 	LOG_TEST_RET(ctx, r, "can't create appdir");
@@ -400,39 +423,6 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 	r = sc_select_file(card, &df->path, NULL);
 	LOG_TEST_RET(ctx, r, "can't select appdir");
 
-	/*
-	 * have to create the pinfile right away, so it will be first
-	 * in the directory, and thus its claim to Short File
-	 * Identifier 1 will have precedence over any other file ids
-	 */
-	r = sc_profile_get_file(profile, "pinfile", &pinfile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
-		    "Cannot get pinfile from profile");
-
-	p = type_attr;
-	*p++ = 0x82;
-	*p++ = 0x05;
-	*p++ = 0x0c; /* fdb: linear variable EF */
-	*p++ = 0x01; /* dcb: unused in acos5 */
-	*p++ = 0x00; /* must be 0 */
-	*p++ = 18;   /* mrl: max record len */
-	*p++ = ACOS5_MAX_PINS; /* nor: number of records */
-
-	*p++ = 0x88; /* set sfi to 1 */
-	*p++ = 0x01;
-	*p++ = 0x01; 
-	
-	type_attr_len = p - type_attr;
-	sc_file_set_type_attr(pinfile, type_attr, type_attr_len);
-
-	r = sc_pkcs15init_fixup_file(profile, p15card, pinfile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-	acos5_sec_attr(profile, NULL, pinfile);
-	
-	r = sc_create_file(card, pinfile);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
-		    "pinfile creation failed");
-	
 	r = acos5_activate_file (card, df);
 	SC_TEST_RET(card->ctx, SC_LOG_DEBUG_NORMAL, r, "can't activate appdir");
 
@@ -440,7 +430,7 @@ acos5_create_dir(struct sc_profile *profile, sc_pkcs15_card_t *p15card,
 }
 
 int
-acos5_enable_security (sc_profile_t *profile, sc_pkcs15_card_t *p15card)
+acos5_enable_security (sc_profile_t *profile, sc_pkcs15_card_t *p15card, enum acos5_pin_mode pin_mode)
 {
 	sc_card_t *card = p15card->card;
 	struct sc_context *ctx = card->ctx;
@@ -471,7 +461,7 @@ acos5_enable_security (sc_profile_t *profile, sc_pkcs15_card_t *p15card)
 	
 	r = sc_pkcs15init_fixup_file (profile, p15card, sefile);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-	acos5_sec_attr (profile, NULL, sefile);
+	acos5_sec_attr (sefile, pin_mode);
 
 	r = sc_create_file(card, sefile);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "sefile creation failed");
@@ -526,13 +516,21 @@ acos5_select_pin_reference(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 }
 
 static int
-acos5_write_pinrec (sc_card_t *card, int refnum, const u8 *pin, size_t pin_len)
+acos5_write_pinrec (sc_card_t *card, sc_pkcs15_auth_info_t *auth_info,
+		    int refnum, const u8 *pin, size_t pin_len)
 {
 	struct sc_context *ctx = card->ctx;
 	int dlen;
 	u8 data[100];
 	sc_apdu_t apdu;
 	int r, i;
+	int tries;
+
+	tries = auth_info->tries_left;
+	if (tries < 1)
+		tries = 1;
+	if (tries > 15)
+		tries = 15;
 
 	if (pin_len > 16) {
 		sc_debug(ctx, SC_LOG_DEBUG_NORMAL, "invalid pin length");
@@ -542,7 +540,7 @@ acos5_write_pinrec (sc_card_t *card, int refnum, const u8 *pin, size_t pin_len)
 	/* manual section 3.1.1 PIN Data Structure */
 	dlen = 0;
 	data[dlen++] = 0x80 | refnum;
-	data[dlen++] = 0xff; /* don't use pin fail counter for now */
+	data[dlen++] = (tries << 4) | tries;
 	for (i = 0; i < pin_len; i++)
 		data[dlen++] = pin[i];
 
@@ -580,14 +578,50 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	u8 type_attr[100];
 	int type_attr_len;
 	int refnum;
+	enum acos5_pin_mode pin_mode;
 
 	SC_FUNC_CALLED(ctx, SC_LOG_DEBUG_VERBOSE);
+
+	if (have_onepin (profile)) {
+		pin_mode = ACOS5_PIN_ONEPIN;
+	} else if (auth_info->attrs.pin.reference == 3) {
+		pin_mode = ACOS5_PIN_HAVE_SO;
+	} else {
+		pin_mode = ACOS5_PIN_NO_SO;
+	}
 
 	r = sc_profile_get_file(profile, "pinfile", &pinfile);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r,
 		    "Cannot get pinfile from profile");
 
 	r = sc_select_file(card, &pinfile->path, &cardfile);
+	if (r == SC_ERROR_FILE_NOT_FOUND) {
+		p = type_attr;
+		*p++ = 0x82;
+		*p++ = 0x05;
+		*p++ = 0x0c; /* fdb: linear variable EF */
+		*p++ = 0x01; /* dcb: unused in acos5 */
+		*p++ = 0x00; /* must be 0 */
+		*p++ = 18;   /* mrl: max record len */
+		*p++ = ACOS5_MAX_PINS; /* nor: number of records */
+
+		*p++ = 0x88; /* Short File Identifier */
+		*p++ = 0x01;
+		*p++ = 0x01; 
+	
+		type_attr_len = p - type_attr;
+		sc_file_set_type_attr(pinfile, type_attr, type_attr_len);
+
+		r = sc_pkcs15init_fixup_file(profile, p15card, pinfile);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
+		acos5_sec_attr(pinfile, pin_mode);
+	
+		r = sc_create_file(card, pinfile);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r,
+			    "pinfile creation failed");
+	
+		r = sc_select_file(card, &pinfile->path, &cardfile);
+	}
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "select pinfile failed");
 
 	sc_debug(ctx, SC_LOG_DEBUG_NORMAL,
@@ -598,15 +632,27 @@ acos5_create_pin(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	refnum = auth_info->attrs.pin.reference;
 
-	r = acos5_write_pinrec (card, refnum, pin, pin_len);
+	r = acos5_write_pinrec (card, auth_info, refnum, pin, pin_len);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write pin failed");
 	
-	r = acos5_write_pinrec (card, refnum + 1, puk, puk_len);
-	SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write puk failed");
+	if (puk_len) {
+		struct sc_pkcs15_auth_info puk_ainfo;
+		sc_profile_get_pin_info (profile,
+					 refnum == 3 ? SC_PKCS15INIT_SO_PUK : SC_PKCS15INIT_USER_PUK,
+					 &puk_ainfo);
+
+		r = acos5_write_pinrec (card, &puk_ainfo, refnum + 1, puk, puk_len);
+		SC_TEST_RET(ctx, SC_LOG_DEBUG_NORMAL, r, "write puk failed");
+	}
 
 	if (cardfile->status == SC_FILE_STATUS_CREATION) {
+		/*
+		 * the effect here is to skip enabling security if
+		 * we're storing the sopin, but will be storing a user
+		 * pin shortly
+		 */
 		if (have_onepin (profile) || refnum == 1)
-			acos5_enable_security (profile, p15card);
+			acos5_enable_security (profile, p15card, pin_mode);
 	}
 
 	/* XXX leaked on error returns above */
@@ -652,7 +698,7 @@ acos5_create_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 	if (r < 0)
 		goto done;
 
-	acos5_sec_attr (profile, card, keyfile);
+	acos5_sec_attr (keyfile, acos5_get_pin_mode (profile, card));
 	
 	r = sc_pkcs15init_create_file(profile, p15card, keyfile);
 	if (r >= 0)
@@ -776,7 +822,7 @@ acos5_generate_key(struct sc_profile *profile, struct sc_pkcs15_card *p15card,
 
 	r = sc_pkcs15init_fixup_file (profile, p15card, pukey_file);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-	acos5_sec_attr (profile, card, pukey_file);
+	acos5_sec_attr (pukey_file, acos5_get_pin_mode (profile, card));
 
 	r = sc_create_file(card, pukey_file);
 	if (r < 0 && r != SC_ERROR_FILE_ALREADY_EXISTS) 
@@ -1035,7 +1081,7 @@ acos5_store_key(sc_profile_t *profile, sc_pkcs15_card_t *p15card,
 
 	r = sc_pkcs15init_fixup_file (profile, p15card, pukey_file);
 	SC_TEST_RET(ctx, SC_LOG_DEBUG_VERBOSE, r, "fixup_file");
-	acos5_sec_attr (profile, card, pukey_file);
+	acos5_sec_attr (pukey_file, acos5_get_pin_mode (profile, card));
 
 	r = sc_create_file(card, pukey_file);
 	if (r == SC_ERROR_FILE_ALREADY_EXISTS)
